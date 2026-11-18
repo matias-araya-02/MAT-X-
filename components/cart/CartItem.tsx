@@ -1,0 +1,67 @@
+'use client'
+
+import Image from 'next/image'
+import { useCartStore } from '@/store/cart'
+import type { CartItem as CartItemType } from '@/store/cart'
+
+interface Props {
+  item: CartItemType
+}
+
+export function CartItem({ item }: Props) {
+  const { updateQuantity, removeItem } = useCartStore()
+
+  return (
+    <div className="flex gap-3 items-start">
+      {/* Imagen */}
+      {item.imagen && (
+        <div className="relative w-16 h-16 bg-background flex-shrink-0">
+          <Image
+            src={item.imagen}
+            alt={item.nombre}
+            fill
+            className="object-contain p-1"
+            sizes="64px"
+          />
+        </div>
+      )}
+
+      {/* Info */}
+      <div className="flex-1 min-w-0">
+        <p className="font-heading font-bold text-sm truncate">{item.nombre}</p>
+        {item.variante && (
+          <p className="font-mono text-xs text-muted">{item.variante}</p>
+        )}
+        <p className="font-mono text-sm text-secondary mt-1">
+          ${item.precio.toLocaleString('es-AR')}
+        </p>
+
+        {/* Cantidad */}
+        <div className="flex items-center gap-2 mt-2">
+          <button
+            onClick={() => updateQuantity(item.productoId, item.varianteId, item.cantidad - 1)}
+            className="w-6 h-6 bg-background border border-primary/40 hover:border-primary font-mono text-sm flex items-center justify-center transition-colors"
+          >
+            −
+          </button>
+          <span className="font-mono text-sm w-6 text-center">{item.cantidad}</span>
+          <button
+            onClick={() => updateQuantity(item.productoId, item.varianteId, item.cantidad + 1)}
+            className="w-6 h-6 bg-background border border-primary/40 hover:border-primary font-mono text-sm flex items-center justify-center transition-colors"
+          >
+            +
+          </button>
+        </div>
+      </div>
+
+      {/* Eliminar */}
+      <button
+        onClick={() => removeItem(item.productoId, item.varianteId)}
+        className="text-muted hover:text-red-400 transition-colors font-mono text-sm"
+        aria-label="Eliminar del carrito"
+      >
+        ✕
+      </button>
+    </div>
+  )
+}

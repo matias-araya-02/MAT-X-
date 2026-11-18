@@ -1,0 +1,93 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Categoria {
+  id        String     @id @default(cuid())
+  nombre    String
+  slug      String     @unique
+  orden     Int        @default(0)
+  productos Producto[]
+}
+
+model Producto {
+  id          String     @id @default(cuid())
+  nombre      String
+  slug        String     @unique
+  sku         String?    @unique
+  descripcion String?
+  precio      Int
+  descuento   Int?
+  stock       Int        @default(0)
+  activo      Boolean    @default(true)
+  destacado   Boolean    @default(false)
+  categoria   Categoria  @relation(fields: [categoriaId], references: [id])
+  categoriaId String
+  imagenes    Imagen[]
+  variantes   Variante[]
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  @@index([categoriaId])
+  @@index([activo, destacado])
+}
+
+model Variante {
+  id         String   @id @default(cuid())
+  nombre     String
+  precio     Int?
+  stock      Int      @default(0)
+  producto   Producto @relation(fields: [productoId], references: [id], onDelete: Cascade)
+  productoId String
+
+  @@index([productoId])
+}
+
+model Imagen {
+  id         String   @id @default(cuid())
+  url        String
+  publicId   String
+  alt        String?
+  orden      Int      @default(0)
+  producto   Producto @relation(fields: [productoId], references: [id], onDelete: Cascade)
+  productoId String
+
+  @@index([productoId])
+}
+
+model Pedido {
+  id            String       @id @default(cuid())
+  numero        Int          @unique @default(autoincrement())
+  codigo        String       @unique @default(cuid())
+  items         Json
+  total         Int
+  estado        EstadoPedido @default(CONSULTA)
+  nombreCliente String?
+  telefono      String?
+  notas         String?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  @@index([estado])
+  @@index([createdAt])
+}
+
+model Config {
+  id                     Int @id @default(1)
+  descuentoTransferencia Int @default(0)
+}
+
+enum EstadoPedido {
+  CONSULTA
+  CONFIRMADO
+  PAGADO
+  ENVIADO
+  ENTREGADO
+  CANCELADO
+}
