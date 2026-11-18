@@ -24,8 +24,7 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# Prisma
-prisma/migrations/
+# Prisma (mantener migrations en el repo para deploy)
 
 # OS
 .DS_Store
