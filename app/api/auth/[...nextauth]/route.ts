@@ -12,25 +12,17 @@ export const authOptions: NextAuthOptions = {
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
-          console.log('[AUTH] No se recibieron credenciales')
           return null
         }
 
         const adminEmail = process.env.ADMIN_EMAIL
         const adminPasswordHash = process.env.ADMIN_PASSWORD_HASH
 
-        console.log('[AUTH] Email recibido:', credentials.email)
-        console.log('[AUTH] Email esperado:', adminEmail)
-        console.log('[AUTH] Hash presente:', !!adminPasswordHash)
-        console.log('[AUTH] Hash primeros 10 chars:', adminPasswordHash?.substring(0, 10))
-
         if (!adminEmail || !adminPasswordHash) {
-          console.log('[AUTH] FALTA ADMIN_EMAIL o ADMIN_PASSWORD_HASH en env')
           return null
         }
 
         if (credentials.email !== adminEmail) {
-          console.log('[AUTH] Email no coincide')
           return null
         }
 
@@ -38,7 +30,6 @@ export const authOptions: NextAuthOptions = {
           credentials.password,
           adminPasswordHash
         )
-        console.log('[AUTH] Password match:', passwordMatch)
 
         if (!passwordMatch) return null
 
