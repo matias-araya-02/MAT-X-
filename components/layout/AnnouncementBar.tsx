@@ -1,21 +1,25 @@
 // Barra de anuncios con marquee animado
 export function AnnouncementBar() {
   const mensajes = [
-    '🚀 Envíos a todo el país — se coordina por WhatsApp',
-    '🎮 Periféricos gaming de alto rendimiento',
-    '💳 Descuento por transferencia bancaria',
-    '🛡️ Garantía oficial en todos los productos',
-    '⚡ Cables coiled, teclados mecánicos, auriculares y más',
+    '10% OFF con transferencia',
+    'Productos 100% originales',
+    'Entregas en Mendoza',
   ]
 
-  const contenido = [...mensajes, ...mensajes].join('   ·   ')
+  // Se repite la lista para que el marquee no tenga huecos (cantidad par)
+  const items = [...mensajes, ...mensajes, ...mensajes, ...mensajes]
 
   return (
     <div className="bg-primary text-white overflow-hidden py-2">
       <div className="flex whitespace-nowrap animate-marquee">
-        <span className="font-mono text-xs font-bold uppercase tracking-wider">
-          {contenido}
-        </span>
+        <div className="flex items-center font-mono text-xs font-bold uppercase tracking-wider">
+          {items.map((texto, i) => (
+            <span key={i} className="flex items-center">
+              {texto}
+              <span className="mx-6 inline-block h-1.5 w-1.5 bg-white" aria-hidden="true" />
+            </span>
+          ))}
+        </div>
       </div>
     </div>
   )
