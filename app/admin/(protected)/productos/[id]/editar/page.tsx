@@ -30,6 +30,7 @@ export default async function EditarProductoPage({ params }: Props) {
     id: producto.id,
     nombre: producto.nombre,
     slug: producto.slug,
+    marca: producto.marca ?? '',
     sku: producto.sku ?? '',
     descripcion: producto.descripcion ?? '',
     precio: producto.precio,

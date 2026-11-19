@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { prisma } from '@/lib/prisma'
+import { Package, Bell, Gamepad2 } from 'lucide-react'
 
 export const metadata: Metadata = { title: 'Dashboard | Admin MAT-X' }
 
@@ -30,9 +31,9 @@ export default async function AdminDashboardPage() {
   const { totalPedidos, pedidosConsulta, totalProductos, ultimosPedidos } = await getStats()
 
   const stats = [
-    { label: 'Pedidos totales',    value: totalPedidos,    icon: '📦', href: '/admin/pedidos' },
-    { label: 'Consultas nuevas',   value: pedidosConsulta, icon: '🔔', href: '/admin/pedidos' },
-    { label: 'Productos activos',  value: totalProductos,  icon: '🎮', href: '/admin/productos' },
+    { label: 'Pedidos totales',   value: totalPedidos,    icon: Package,  href: '/admin/pedidos',   color: 'text-amber-600 bg-amber-50' },
+    { label: 'Consultas nuevas',  value: pedidosConsulta, icon: Bell,     href: '/admin/pedidos',   color: 'text-orange-500 bg-orange-50' },
+    { label: 'Productos activos', value: totalProductos,  icon: Gamepad2, href: '/admin/productos', color: 'text-violet-600 bg-violet-50' },
   ]
 
   return (
@@ -41,19 +42,24 @@ export default async function AdminDashboardPage() {
 
       {/* Stat cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-10">
-        {stats.map((s) => (
-          <Link
-            key={s.label}
-            href={s.href}
-            className="bg-surface border border-primary/20 p-5 hover:border-primary transition-colors"
-          >
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-2xl">{s.icon}</span>
-              <span className="font-mono text-3xl font-bold text-primary">{s.value}</span>
-            </div>
-            <p className="font-mono text-xs text-muted uppercase tracking-wider">{s.label}</p>
-          </Link>
-        ))}
+        {stats.map((s) => {
+          const Icon = s.icon
+          return (
+            <Link
+              key={s.label}
+              href={s.href}
+              className="bg-surface border border-primary/20 p-5 hover:border-primary transition-colors group"
+            >
+              <div className="flex items-center justify-between mb-2">
+                <span className={`p-2 rounded-lg ${s.color}`}>
+                  <Icon size={22} strokeWidth={2} />
+                </span>
+                <span className="font-mono text-3xl font-bold text-primary">{s.value}</span>
+              </div>
+              <p className="font-mono text-xs text-muted uppercase tracking-wider">{s.label}</p>
+            </Link>
+          )
+        })}
       </div>
 
       {/* Últimos pedidos */}

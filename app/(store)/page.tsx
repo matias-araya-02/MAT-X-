@@ -24,8 +24,16 @@ async function getDestacados() {
   })
 }
 
+async function getConfig() {
+  const config = await prisma.config.findUnique({ where: { id: 1 } })
+  return config?.descuentoTransferencia ?? 0
+}
+
 export default async function HomePage() {
-  const destacados = await getDestacados()
+  const [destacados, descuentoTransferencia] = await Promise.all([
+    getDestacados(),
+    getConfig(),
+  ])
 
   return (
     <div>
@@ -44,7 +52,11 @@ export default async function HomePage() {
         {destacados.length > 0 ? (
           <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
             {destacados.map((p) => (
-              <ProductCard key={p.id} producto={p} />
+              <ProductCard
+                key={p.id}
+                producto={p}
+                descuentoTransferencia={descuentoTransferencia}
+              />
             ))}
           </div>
         ) : (

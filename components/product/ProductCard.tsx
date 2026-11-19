@@ -11,14 +11,20 @@ type ProductoCard = Producto & {
 
 interface Props {
   producto: ProductoCard
+  descuentoTransferencia?: number
 }
 
-export function ProductCard({ producto }: Props) {
+export function ProductCard({ producto, descuentoTransferencia = 0 }: Props) {
   const imagen = producto.imagenes[0]
   const precioFinal = calcularPrecioFinal(producto.precio, producto.descuento)
   const tieneDescuento = producto.descuento && producto.descuento > 0
 
-  // Stock: si tiene variantes suma el stock de todas; si no, usa el del producto
+  // Precio de transferencia: se aplica sobre el precio final (ya con descuento de producto)
+  const precioTransferencia = descuentoTransferencia > 0
+    ? Math.round(precioFinal * (1 - descuentoTransferencia / 100))
+    : null
+
+  // Stock
   const stockTotal = producto.variantes.length > 0
     ? producto.variantes.reduce((acc, v) => acc + v.stock, 0)
     : producto.stock
@@ -26,7 +32,7 @@ export function ProductCard({ producto }: Props) {
 
   return (
     <Link href={`/productos/${producto.slug}`} className="product-card group block">
-      {/* Label etiqueta */}
+      {/* Label etiqueta categoría */}
       <div className="card-label">{producto.categoria.nombre}</div>
 
       {/* Imagen */}
@@ -45,31 +51,50 @@ export function ProductCard({ producto }: Props) {
           </div>
         )}
         {tieneDescuento && (
-          <span className="badge-discount absolute right-2 top-2">
+          <span className="badge-discount absolute left-2 top-2">
             -{producto.descuento}%
           </span>
         )}
         {sinStock && (
-          <span className="absolute left-2 top-2 bg-muted/80 text-white font-mono text-xs px-2 py-0.5">
+          <span className="absolute right-2 top-2 bg-zinc-800/80 text-white font-mono text-xs px-2 py-0.5">
             Sin stock
           </span>
         )}
       </div>
 
       {/* Info */}
-      <div className="p-4">
-        <h3 className="mb-1 font-heading text-lg font-bold leading-tight">
+      <div className="p-4 space-y-1">
+        {/* Marca */}
+        {producto.marca && (
+          <p className="font-mono text-[11px] text-primary font-bold uppercase tracking-wider">
+            {producto.marca}
+          </p>
+        )}
+
+        {/* Nombre */}
+        <h3 className="font-heading text-base font-bold leading-tight">
           {producto.nombre}
         </h3>
 
-        <div className="mt-2 flex items-baseline gap-2">
-          <span className="font-sans text-xl font-bold text-text">
-            ${precioFinal.toLocaleString('es-AR')}
-          </span>
-          {tieneDescuento && (
-            <span className="font-mono text-sm text-muted line-through">
-              ${producto.precio.toLocaleString('es-AR')}
+        {/* Precios */}
+        <div className="pt-1">
+          {/* Precio principal + tachado */}
+          <div className="flex items-baseline gap-2">
+            <span className="font-sans text-xl font-bold text-text">
+              ${precioFinal.toLocaleString('es-AR')}
             </span>
+            {tieneDescuento && (
+              <span className="font-mono text-sm text-muted line-through">
+                ${producto.precio.toLocaleString('es-AR')}
+              </span>
+            )}
+          </div>
+
+          {/* Precio transferencia */}
+          {precioTransferencia && (
+            <p className="font-mono text-xs text-green-600 mt-0.5">
+              ${precioTransferencia.toLocaleString('es-AR')} transferencia
+            </p>
           )}
         </div>
       </div>

@@ -1,6 +1,8 @@
 import type { Metadata } from 'next'
 import { prisma } from '@/lib/prisma'
 import { CambiarEstadoPedido } from '@/components/admin/CambiarEstadoPedido'
+import { FileText } from 'lucide-react'
+import { WhatsAppIcon } from '@/components/icons/WhatsAppIcon'
 
 export const metadata: Metadata = { title: 'Pedidos | Admin MAT-X' }
 export const dynamic = 'force-dynamic'
@@ -104,8 +106,9 @@ export default async function AdminPedidosPage({ searchParams }: Props) {
 
                 {/* Notas */}
                 {pedido.notas && (
-                  <p className="font-mono text-xs text-muted bg-background px-3 py-2 mb-4">
-                    📝 {pedido.notas}
+                  <p className="flex items-start gap-2 font-mono text-xs text-muted bg-background px-3 py-2 mb-4">
+                    <FileText size={14} className="flex-shrink-0 mt-0.5" />
+                    {pedido.notas}
                   </p>
                 )}
 
@@ -117,9 +120,10 @@ export default async function AdminPedidosPage({ searchParams }: Props) {
                       href={`https://wa.me/${pedido.telefono.replace(/\D/g, '')}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="font-mono text-xs px-3 py-1 border border-green-400 text-green-600 hover:bg-green-50 transition-colors"
+                      className="inline-flex items-center gap-1.5 font-mono text-xs px-3 py-1 border border-green-400 text-green-600 hover:bg-green-50 transition-colors"
                     >
-                      📱 WhatsApp
+                      <WhatsAppIcon size={14} />
+                      WhatsApp
                     </a>
                   )}
                 </div>

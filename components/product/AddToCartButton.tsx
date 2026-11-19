@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useCartStore } from '@/store/cart'
 import { calcularPrecioFinal } from '@/lib/pricing'
 import type { Producto, Variante, Imagen, Categoria } from '@prisma/client'
+import { Minus, Plus, ShoppingCart } from 'lucide-react'
 
 type ProductoConRelaciones = Producto & {
   categoria: Pick<Categoria, 'nombre' | 'slug'>
@@ -25,14 +26,12 @@ export function AddToCartButton({ producto }: Props) {
   const tieneVariantes = producto.variantes.length > 0
   const imagen = producto.imagenes[0]?.url
 
-  // Stock disponible según si tiene variantes o no
   const stockDisponible = varianteSeleccionada
     ? varianteSeleccionada.stock
     : tieneVariantes
     ? 0
     : producto.stock
 
-  // Precio final considerando override de variante
   const precioBase = varianteSeleccionada?.precio ?? producto.precio
   const precioFinal = calcularPrecioFinal(precioBase, producto.descuento)
 
@@ -89,17 +88,17 @@ export function AddToCartButton({ producto }: Props) {
         <div className="flex items-center gap-3">
           <button
             onClick={() => setCantidad((c) => Math.max(1, c - 1))}
-            className="w-8 h-8 border border-primary/40 hover:border-primary font-mono flex items-center justify-center transition-colors"
+            className="w-9 h-9 border border-primary/40 hover:border-primary rounded flex items-center justify-center transition-colors"
           >
-            −
+            <Minus size={16} strokeWidth={2} />
           </button>
           <span className="font-mono text-lg w-8 text-center">{cantidad}</span>
           <button
             onClick={() => setCantidad((c) => Math.min(stockDisponible, c + 1))}
             disabled={cantidad >= stockDisponible}
-            className="w-8 h-8 border border-primary/40 hover:border-primary font-mono flex items-center justify-center transition-colors disabled:opacity-40"
+            className="w-9 h-9 border border-primary/40 hover:border-primary rounded flex items-center justify-center transition-colors disabled:opacity-40"
           >
-            +
+            <Plus size={16} strokeWidth={2} />
           </button>
         </div>
       </div>
@@ -108,8 +107,9 @@ export function AddToCartButton({ producto }: Props) {
       <button
         onClick={handleAgregar}
         disabled={!puedeAgregar}
-        className="btn-primary w-full disabled:opacity-50 disabled:cursor-not-allowed"
+        className="btn-primary w-full disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
       >
+        <ShoppingCart size={18} strokeWidth={2} />
         {!puedeAgregar
           ? tieneVariantes && !varianteSeleccionada
             ? 'Seleccioná una variante'
@@ -119,7 +119,7 @@ export function AddToCartButton({ producto }: Props) {
 
       {tieneVariantes && !varianteSeleccionada && (
         <p className="font-mono text-xs text-muted text-center">
-          ↑ Seleccioná una opción para continuar
+          Seleccioná una opción para continuar
         </p>
       )}
     </div>

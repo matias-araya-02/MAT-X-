@@ -3,6 +3,7 @@
 import Image from 'next/image'
 import { useCartStore } from '@/store/cart'
 import type { CartItem as CartItemType } from '@/store/cart'
+import { X, Minus, Plus } from 'lucide-react'
 
 interface Props {
   item: CartItemType
@@ -15,7 +16,7 @@ export function CartItem({ item }: Props) {
     <div className="flex gap-3 items-start">
       {/* Imagen */}
       {item.imagen && (
-        <div className="relative w-16 h-16 bg-background flex-shrink-0">
+        <div className="relative w-16 h-16 bg-surface flex-shrink-0 rounded">
           <Image
             src={item.imagen}
             alt={item.nombre}
@@ -40,16 +41,16 @@ export function CartItem({ item }: Props) {
         <div className="flex items-center gap-2 mt-2">
           <button
             onClick={() => updateQuantity(item.productoId, item.varianteId, item.cantidad - 1)}
-            className="w-6 h-6 bg-background border border-primary/40 hover:border-primary font-mono text-sm flex items-center justify-center transition-colors"
+            className="w-6 h-6 bg-background border border-primary/40 hover:border-primary rounded flex items-center justify-center transition-colors"
           >
-            −
+            <Minus size={12} strokeWidth={2.5} />
           </button>
           <span className="font-mono text-sm w-6 text-center">{item.cantidad}</span>
           <button
             onClick={() => updateQuantity(item.productoId, item.varianteId, item.cantidad + 1)}
-            className="w-6 h-6 bg-background border border-primary/40 hover:border-primary font-mono text-sm flex items-center justify-center transition-colors"
+            className="w-6 h-6 bg-background border border-primary/40 hover:border-primary rounded flex items-center justify-center transition-colors"
           >
-            +
+            <Plus size={12} strokeWidth={2.5} />
           </button>
         </div>
       </div>
@@ -57,10 +58,10 @@ export function CartItem({ item }: Props) {
       {/* Eliminar */}
       <button
         onClick={() => removeItem(item.productoId, item.varianteId)}
-        className="text-muted hover:text-red-400 transition-colors font-mono text-sm"
+        className="p-1 text-muted hover:text-red-400 transition-colors"
         aria-label="Eliminar del carrito"
       >
-        ✕
+        <X size={16} strokeWidth={2} />
       </button>
     </div>
   )

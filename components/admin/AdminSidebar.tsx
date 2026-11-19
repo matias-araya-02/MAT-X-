@@ -4,12 +4,13 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { signOut } from 'next-auth/react'
+import { LayoutDashboard, Package, Gamepad2, Settings, LogOut } from 'lucide-react'
 
 const NAV_LINKS = [
-  { href: '/admin', label: 'Dashboard', icon: '📊', exact: true },
-  { href: '/admin/pedidos', label: 'Pedidos', icon: '📦', exact: false },
-  { href: '/admin/productos', label: 'Productos', icon: '🎮', exact: false },
-  { href: '/admin/config', label: 'Configuración', icon: '⚙️', exact: false },
+  { href: '/admin', label: 'Dashboard', icon: LayoutDashboard, exact: true },
+  { href: '/admin/pedidos', label: 'Pedidos', icon: Package, exact: false },
+  { href: '/admin/productos', label: 'Productos', icon: Gamepad2, exact: false },
+  { href: '/admin/config', label: 'Configuración', icon: Settings, exact: false },
 ]
 
 export function AdminSidebar() {
@@ -32,29 +33,33 @@ export function AdminSidebar() {
 
       {/* Nav */}
       <nav className="flex-1 p-3 space-y-1">
-        {NAV_LINKS.map((link) => (
-          <Link
-            key={link.href}
-            href={link.href}
-            className={`flex items-center gap-3 px-3 py-2 font-mono text-sm transition-colors ${
-              isActive(link.href, link.exact)
-                ? 'bg-primary text-white'
-                : 'text-muted hover:text-text hover:bg-background'
-            }`}
-          >
-            <span>{link.icon}</span>
-            {link.label}
-          </Link>
-        ))}
+        {NAV_LINKS.map((link) => {
+          const Icon = link.icon
+          const active = isActive(link.href, link.exact)
+          return (
+            <Link
+              key={link.href}
+              href={link.href}
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg font-mono text-sm transition-colors ${
+                active
+                  ? 'bg-primary text-white'
+                  : 'text-muted hover:text-text hover:bg-background'
+              }`}
+            >
+              <Icon size={18} strokeWidth={active ? 2.5 : 2} />
+              {link.label}
+            </Link>
+          )
+        })}
       </nav>
 
       {/* Logout */}
       <div className="p-3 border-t border-primary/20">
         <button
           onClick={() => signOut({ callbackUrl: '/admin/login' })}
-          className="flex items-center gap-3 px-3 py-2 w-full font-mono text-sm text-muted hover:text-red-500 transition-colors"
+          className="flex items-center gap-3 px-3 py-2.5 w-full rounded-lg font-mono text-sm text-muted hover:text-red-500 hover:bg-red-50 transition-colors"
         >
-          <span>🚪</span>
+          <LogOut size={18} strokeWidth={2} />
           Cerrar sesión
         </button>
       </div>

@@ -27,15 +27,21 @@ async function getProductos(categoriaSlug?: string) {
   })
 }
 
+async function getConfig() {
+  const config = await prisma.config.findUnique({ where: { id: 1 } })
+  return config?.descuentoTransferencia ?? 0
+}
+
 interface Props {
   searchParams: Promise<{ categoria?: string }>
 }
 
 export default async function ProductosPage({ searchParams }: Props) {
   const { categoria } = await searchParams
-  const [categorias, productos] = await Promise.all([
+  const [categorias, productos, descuentoTransferencia] = await Promise.all([
     getCategorias(),
     getProductos(categoria),
+    getConfig(),
   ])
 
   return (
@@ -77,7 +83,11 @@ export default async function ProductosPage({ searchParams }: Props) {
       {productos.length > 0 ? (
         <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
           {productos.map((p) => (
-            <ProductCard key={p.id} producto={p} />
+            <ProductCard
+              key={p.id}
+              producto={p}
+              descuentoTransferencia={descuentoTransferencia}
+            />
           ))}
         </div>
       ) : (

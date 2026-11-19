@@ -13,6 +13,7 @@ const VarianteSchema = z.object({
 const ProductoSchema = z.object({
   nombre: z.string().min(2).max(200),
   slug: z.string().min(2).max(200),
+  marca: z.string().max(100).optional().nullable(),
   sku: z.string().max(50).optional().nullable(),
   descripcion: z.string().max(2000).optional().nullable(),
   precio: z.number().int().positive(),
@@ -59,6 +60,7 @@ export async function POST(req: NextRequest) {
       data: {
         ...productoData,
         sku: productoData.sku || null,
+        marca: productoData.marca || null,
         descripcion: productoData.descripcion || null,
         descuento: productoData.descuento || null,
         variantes: variantes && variantes.length > 0

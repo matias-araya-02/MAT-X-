@@ -20,6 +20,7 @@ model Producto {
   id          String     @id @default(cuid())
   nombre      String
   slug        String     @unique
+  marca       String?
   sku         String?    @unique
   descripcion String?
   precio      Int

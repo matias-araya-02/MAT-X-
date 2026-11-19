@@ -19,6 +19,7 @@ interface ProductoData {
   id?: string
   nombre: string
   slug: string
+  marca: string
   sku: string
   descripcion: string
   precio: number
@@ -51,6 +52,7 @@ export function ProductoForm({ categorias, producto }: Props) {
   const [form, setForm] = useState<ProductoData>({
     nombre: producto?.nombre ?? '',
     slug: producto?.slug ?? '',
+    marca: producto?.marca ?? '',
     sku: producto?.sku ?? '',
     descripcion: producto?.descripcion ?? '',
     precio: producto?.precio ?? 0,
@@ -111,6 +113,7 @@ export function ProductoForm({ categorias, producto }: Props) {
 
       const payload = {
         ...form,
+        marca: form.marca || null,
         sku: form.sku || null,
         descripcion: form.descripcion || null,
         descuento: form.descuento || null,
@@ -188,8 +191,8 @@ export function ProductoForm({ categorias, producto }: Props) {
         </div>
       </div>
 
-      {/* Categoría + SKU */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {/* Categoría + SKU + Marca */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div>
           <label className="block font-mono text-xs text-muted uppercase tracking-wider mb-1">
             Categoría *
@@ -204,6 +207,18 @@ export function ProductoForm({ categorias, producto }: Props) {
               <option key={cat.id} value={cat.id}>{cat.nombre}</option>
             ))}
           </select>
+        </div>
+        <div>
+          <label className="block font-mono text-xs text-muted uppercase tracking-wider mb-1">
+            Marca
+          </label>
+          <input
+            type="text"
+            value={form.marca}
+            onChange={(e) => updateField('marca', e.target.value)}
+            className="w-full bg-background border border-primary/30 px-3 py-2 font-mono text-sm focus:outline-none focus:border-primary"
+            placeholder="Attack Shark, Redragon..."
+          />
         </div>
         <div>
           <label className="block font-mono text-xs text-muted uppercase tracking-wider mb-1">
