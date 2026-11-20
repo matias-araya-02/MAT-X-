@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { Hero } from '@/components/home/Hero'
 import { CategoryGrid } from '@/components/home/CategoryGrid'
 import { ProductCard } from '@/components/product/ProductCard'
+import { ProductCarousel } from '@/components/product/ProductCarousel'
 import { prisma } from '@/lib/prisma'
 
 export const metadata: Metadata = {
@@ -20,7 +21,7 @@ async function getDestacados() {
       variantes: { select: { id: true, nombre: true, precio: true, stock: true } },
     },
     orderBy: { createdAt: 'desc' },
-    take: 4,
+    take: 20,
   })
 }
 
@@ -50,7 +51,7 @@ export default async function HomePage() {
         </div>
 
         {destacados.length > 0 ? (
-          <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+          <ProductCarousel label="Productos más vendidos">
             {destacados.map((p) => (
               <ProductCard
                 key={p.id}
@@ -58,7 +59,7 @@ export default async function HomePage() {
                 descuentoTransferencia={descuentoTransferencia}
               />
             ))}
-          </div>
+          </ProductCarousel>
         ) : (
           <p className="font-mono text-muted text-center py-12">
             No hay productos destacados todavía.

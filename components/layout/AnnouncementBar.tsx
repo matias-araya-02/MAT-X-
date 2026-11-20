@@ -20,7 +20,7 @@ export function AnnouncementBar() {
               <span key={i} className="flex items-center">
                 <Icon size={13} strokeWidth={2.5} className="mr-1.5" />
                 {item.texto}
-                <span className="mx-6 inline-block h-1 w-1 rounded-full bg-white/60" aria-hidden="true" />
+                <span className="mx-6 inline-block h-1 w-1 bg-white" aria-hidden="true" />
               </span>
             )
           })}
