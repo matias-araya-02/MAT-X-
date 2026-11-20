@@ -88,7 +88,7 @@ export function FiltrosSidebar({ categorias, marcas, precioMin, precioMax }: Pro
             </button>
 
             <div
-                className={`${abierto ? 'block' : 'hidden'} border border-primary/20 bg-surface transition-opacity lg:block ${isPending ? 'opacity-60' : ''
+                className={`${abierto ? 'block' : 'hidden'} border border-primary/20 bg-white transition-opacity lg:block ${isPending ? 'opacity-60' : ''
                     }`}
             >
                 <div className="card-label flex items-center justify-between">
