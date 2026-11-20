@@ -62,11 +62,16 @@ export function ProductCard({ producto, descuentoTransferencia = 0 }: Props) {
         )}
       </div>
 
-      {/* Info */}
-      <div className="p-4 space-y-1">
+      {/*
+        Info: un único gap define la separación entre
+        imagen → marca → nombre → precios.
+        El pt-0 evita sumar espacio extra: la imagen ya tiene p-4 abajo (16px),
+        igual al gap-4 de acá.
+      */}
+      <div className="flex flex-col gap-4 px-4 pb-4 pt-0">
         {/* Marca */}
         {producto.marca && (
-          <p className="font-mono text-[11px] text-primary font-bold uppercase tracking-wider">
+          <p className="font-mono text-[13px] font-bold uppercase leading-none tracking-wider text-primary">
             {producto.marca}
           </p>
         )}
@@ -76,15 +81,15 @@ export function ProductCard({ producto, descuentoTransferencia = 0 }: Props) {
           {producto.nombre}
         </h3>
 
-        {/* Precios */}
-        <div className="pt-1">
+        {/* Precios (agrupados, con poco espacio interno) */}
+        <div className="flex flex-col gap-1">
           {/* Precio principal + tachado */}
           <div className="flex items-baseline gap-2">
-            <span className="font-sans text-xl font-bold text-text">
+            <span className="font-sans text-2xl font-bold leading-none text-text">
               ${precioFinal.toLocaleString('es-AR')}
             </span>
             {tieneDescuento && (
-              <span className="font-mono text-sm text-muted line-through">
+              <span className="font-mono text-base text-muted line-through">
                 ${producto.precio.toLocaleString('es-AR')}
               </span>
             )}
@@ -92,7 +97,7 @@ export function ProductCard({ producto, descuentoTransferencia = 0 }: Props) {
 
           {/* Precio transferencia */}
           {precioTransferencia && (
-            <p className="font-mono text-xs text-green-600 mt-0.5">
+            <p className="font-mono text-sm text-green-600">
               ${precioTransferencia.toLocaleString('es-AR')} transferencia
             </p>
           )}

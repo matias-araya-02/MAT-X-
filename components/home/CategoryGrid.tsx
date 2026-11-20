@@ -9,7 +9,7 @@ const CATEGORIAS = [
 
 export function CategoryGrid() {
     return (
-        <section className="container mx-auto px-4 py-16">
+        <section className="mx-auto w-full max-w-7xl px-4 py-16">
             <h2 className="mb-8 font-heading text-3xl font-bold uppercase md:text-4xl">
                 Categorías
             </h2>

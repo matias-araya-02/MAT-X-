@@ -39,7 +39,7 @@ export default async function HomePage() {
     <div>
       <Hero />
 
-      <section className="container mx-auto px-4 py-16">
+      <section className="mx-auto w-full max-w-7xl px-4 py-16">
         <div className="mb-8 flex items-end justify-between gap-4">
           <h2 className="font-heading text-3xl font-bold uppercase md:text-4xl">
             Más vendidos
