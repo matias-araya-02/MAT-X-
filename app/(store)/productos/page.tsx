@@ -1,6 +1,9 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { ProductCard } from '@/components/product/ProductCard'
+import { FiltrosSidebar } from '@/components/product/FiltrosSidebar'
+import { OrdenSelect } from '@/components/product/OrdenSelect'
+import { calcularPrecioFinal } from '@/lib/pricing'
 import { prisma } from '@/lib/prisma'
 
 export const metadata: Metadata = {
@@ -12,12 +15,9 @@ async function getCategorias() {
   return prisma.categoria.findMany({ orderBy: { orden: 'asc' } })
 }
 
-async function getProductos(categoriaSlug?: string) {
+async function getProductos() {
   return prisma.producto.findMany({
-    where: {
-      activo: true,
-      ...(categoriaSlug ? { categoria: { slug: categoriaSlug } } : {}),
-    },
+    where: { activo: true },
     include: {
       categoria: { select: { nombre: true, slug: true } },
       imagenes: { orderBy: { orden: 'asc' } },
@@ -33,71 +33,119 @@ async function getConfig() {
 }
 
 interface Props {
-  searchParams: Promise<{ categoria?: string }>
+  searchParams: Promise<{
+    categoria?: string
+    marca?: string
+    min?: string
+    max?: string
+    orden?: string
+  }>
+}
+
+const toList = (v?: string) => (v ? v.split(',').filter(Boolean) : [])
+
+const toInt = (v?: string) => {
+  const n = parseInt(v ?? '', 10)
+  return Number.isFinite(n) && n >= 0 ? n : undefined
 }
 
 export default async function ProductosPage({ searchParams }: Props) {
-  const { categoria } = await searchParams
-  const [categorias, productos, descuentoTransferencia] = await Promise.all([
+  const sp = await searchParams
+  const categoriasSel = toList(sp.categoria)
+  const marcasSel = toList(sp.marca)
+  const min = toInt(sp.min)
+  const max = toInt(sp.max)
+  const orden = sp.orden ?? 'recientes'
+
+  const [categorias, todos, descuentoTransferencia] = await Promise.all([
     getCategorias(),
-    getProductos(categoria),
+    getProductos(),
     getConfig(),
   ])
 
+  // Precio final (con descuento del producto) de cada uno
+  const conPrecio = todos.map((p) => ({
+    producto: p,
+    precioFinal: calcularPrecioFinal(p.precio, p.descuento),
+  }))
+
+  // Opciones del panel (calculadas sobre todo el catálogo activo)
+  const categoriasFacet = categorias.map((c) => ({
+    nombre: c.nombre,
+    slug: c.slug,
+    count: todos.filter((p) => p.categoria.slug === c.slug).length,
+  }))
+
+  const marcasMap = new Map<string, number>()
+  for (const p of todos) {
+    if (p.marca) marcasMap.set(p.marca, (marcasMap.get(p.marca) ?? 0) + 1)
+  }
+  const marcasFacet = [...marcasMap.entries()]
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([nombre, count]) => ({ nombre, count }))
+
+  const precios = conPrecio.map((x) => x.precioFinal)
+  const precioMin = precios.length ? Math.min(...precios) : 0
+  const precioMax = precios.length ? Math.max(...precios) : 0
+
+  // Filtrado
+  const filtrados = conPrecio.filter(({ producto, precioFinal }) => {
+    if (categoriasSel.length && !categoriasSel.includes(producto.categoria.slug)) return false
+    if (marcasSel.length && (!producto.marca || !marcasSel.includes(producto.marca))) return false
+    if (min !== undefined && precioFinal < min) return false
+    if (max !== undefined && precioFinal > max) return false
+    return true
+  })
+
+  // Orden (por defecto ya viene por createdAt desc)
+  if (orden === 'precio-asc') filtrados.sort((a, b) => a.precioFinal - b.precioFinal)
+  if (orden === 'precio-desc') filtrados.sort((a, b) => b.precioFinal - a.precioFinal)
+
+  const productos = filtrados.map((x) => x.producto)
+
   return (
-    <div className="container mx-auto px-4 py-12">
-      {/* Filtros por categoría */}
-      <div className="mb-8 flex flex-wrap gap-2">
-        <Link
-          href="/productos"
-          className={`px-4 py-2 font-sans text-sm font-medium uppercase tracking-wider border transition-colors ${
-            !categoria
-              ? 'bg-primary text-white border-primary'
-              : 'border-primary/30 text-muted hover:border-primary hover:text-text'
-          }`}
-        >
-          Todos
-        </Link>
-        {categorias.map((cat) => (
-          <Link
-            key={cat.id}
-            href={`/productos?categoria=${cat.slug}`}
-            className={`px-4 py-2 font-sans text-sm font-medium uppercase tracking-wider border transition-colors ${
-              categoria === cat.slug
-                ? 'bg-primary text-white border-primary'
-                : 'border-primary/30 text-muted hover:border-primary hover:text-text'
-            }`}
-          >
-            {cat.nombre}
-          </Link>
-        ))}
+    <div className="mx-auto w-full max-w-7xl px-4 py-12">
+      <div className="flex flex-col gap-8 lg:flex-row lg:items-start">
+        <FiltrosSidebar
+          categorias={categoriasFacet}
+          marcas={marcasFacet}
+          precioMin={precioMin}
+          precioMax={precioMax}
+        />
+
+        <div className="min-w-0 flex-1">
+          {/* Contador + orden */}
+          <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
+            <p className="font-mono text-xs uppercase tracking-wider text-muted">
+              <span className="font-bold text-text">{productos.length}</span>{' '}
+              producto{productos.length !== 1 ? 's' : ''}
+            </p>
+            <OrdenSelect valor={orden} />
+          </div>
+
+          {/* Grid */}
+          {productos.length > 0 ? (
+            <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
+              {productos.map((p) => (
+                <ProductCard
+                  key={p.id}
+                  producto={p}
+                  descuentoTransferencia={descuentoTransferencia}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="py-20 text-center">
+              <p className="font-mono text-muted">
+                No hay productos que coincidan con los filtros.
+              </p>
+              <Link href="/productos" className="btn-primary mt-6 inline-block">
+                Limpiar filtros
+              </Link>
+            </div>
+          )}
+        </div>
       </div>
-
-      {/* Contador */}
-      <p className="font-mono text-xs text-muted mb-6">
-        {productos.length} producto{productos.length !== 1 ? 's' : ''}
-        {categoria && ` en ${categorias.find(c => c.slug === categoria)?.nombre}`}
-      </p>
-
-      {/* Grid */}
-      {productos.length > 0 ? (
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
-          {productos.map((p) => (
-            <ProductCard
-              key={p.id}
-              producto={p}
-              descuentoTransferencia={descuentoTransferencia}
-            />
-          ))}
-        </div>
-      ) : (
-        <div className="py-20 text-center">
-          <p className="font-mono text-muted">No hay productos en esta categoría.</p>
-          <Link href="/productos" className="btn-primary inline-block mt-6">
-            Ver todos
-          </Link>
-        </div>
-      )}
     </div>
   )
 }
