@@ -31,12 +31,15 @@ export function ProductCard({ producto, descuentoTransferencia = 0 }: Props) {
   const sinStock = stockTotal === 0
 
   return (
-    <Link href={`/productos/${producto.slug}`} className="product-card group block">
+    <Link
+      href={`/productos/${producto.slug}`}
+      className="product-card group block bg-white"
+    >
       {/* Label etiqueta categoría */}
       <div className="card-label">{producto.categoria.nombre}</div>
 
       {/* Imagen */}
-      <div className="relative aspect-square bg-surface">
+      <div className="relative aspect-square bg-white">
         {imagen ? (
           <Image
             src={imagen.url}
@@ -46,7 +49,7 @@ export function ProductCard({ producto, descuentoTransferencia = 0 }: Props) {
             sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
           />
         ) : (
-          <div className="flex h-full w-full items-center justify-center font-mono text-sm text-muted">
+          <div className="flex h-full w-full items-center justify-center bg-surface font-mono text-sm text-muted">
             Sin imagen
           </div>
         )}

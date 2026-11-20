@@ -78,10 +78,19 @@ export default async function ProductoDetallePage({ params }: Props) {
     ? Math.round(precioFinal * (1 - descuentoTransferencia / 100))
     : null
 
+  // Link del breadcrumb: categoría + marca (la marca se codifica sola)
+  const marca = producto.marca?.trim() || null
+  const marcaHref = marca
+    ? `/productos?${new URLSearchParams({
+      categoria: producto.categoria.slug,
+      marca,
+    }).toString()}`
+    : null
+
   return (
-    <div className="container mx-auto px-4 py-12">
+    <div className="mx-auto w-full max-w-7xl px-4 py-12">
       {/* Breadcrumb */}
-      <nav className="font-mono text-xs text-muted mb-8 flex items-center gap-1.5">
+      <nav className="font-mono text-xs text-muted mb-8 flex flex-wrap items-center gap-1.5">
         <Link href="/" className="hover:text-primary transition-colors">Inicio</Link>
         <ChevronRight size={12} />
         <Link href="/productos" className="hover:text-primary transition-colors">Productos</Link>
@@ -89,11 +98,19 @@ export default async function ProductoDetallePage({ params }: Props) {
         <Link href={`/productos?categoria=${producto.categoria.slug}`} className="hover:text-primary transition-colors">
           {producto.categoria.nombre}
         </Link>
+        {marca && marcaHref && (
+          <>
+            <ChevronRight size={12} />
+            <Link href={marcaHref} className="hover:text-primary transition-colors">
+              {marca}
+            </Link>
+          </>
+        )}
         <ChevronRight size={12} />
         <span className="text-text">{producto.nombre}</span>
       </nav>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+      <div className="grid grid-cols-1 items-start gap-12 md:grid-cols-2">
         {/* Galería */}
         <Gallery imagenes={producto.imagenes} nombre={producto.nombre} />
 

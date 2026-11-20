@@ -49,10 +49,13 @@ const toInt = (v?: string) => {
   return Number.isFinite(n) && n >= 0 ? n : undefined
 }
 
+// Normaliza una marca para compararla: sin espacios sobrantes ni mayúsculas
+const normMarca = (m: string) => m.trim().replace(/\s+/g, ' ').toLowerCase()
+
 export default async function ProductosPage({ searchParams }: Props) {
   const sp = await searchParams
   const categoriasSel = toList(sp.categoria)
-  const marcasSel = toList(sp.marca)
+  const marcasSel = toList(sp.marca).map(normMarca)
   const min = toInt(sp.min)
   const max = toInt(sp.max)
   const orden = sp.orden ?? 'recientes'
@@ -76,13 +79,26 @@ export default async function ProductosPage({ searchParams }: Props) {
     count: todos.filter((p) => p.categoria.slug === c.slug).length,
   }))
 
-  const marcasMap = new Map<string, number>()
+  // Marcas agrupadas sin importar mayúsculas/espacios.
+  // Para mostrar se usa la variante escrita más veces.
+  const marcasAgrupadas = new Map<string, { count: number; variantes: Map<string, number> }>()
   for (const p of todos) {
-    if (p.marca) marcasMap.set(p.marca, (marcasMap.get(p.marca) ?? 0) + 1)
+    if (!p.marca) continue
+    const limpia = p.marca.trim().replace(/\s+/g, ' ')
+    if (!limpia) continue
+    const clave = normMarca(limpia)
+    const grupo = marcasAgrupadas.get(clave) ?? { count: 0, variantes: new Map() }
+    grupo.count += 1
+    grupo.variantes.set(limpia, (grupo.variantes.get(limpia) ?? 0) + 1)
+    marcasAgrupadas.set(clave, grupo)
   }
-  const marcasFacet = [...marcasMap.entries()]
-    .sort(([a], [b]) => a.localeCompare(b))
-    .map(([nombre, count]) => ({ nombre, count }))
+
+  const marcasFacet = [...marcasAgrupadas.values()]
+    .map((g) => ({
+      nombre: [...g.variantes.entries()].sort((a, b) => b[1] - a[1])[0][0],
+      count: g.count,
+    }))
+    .sort((a, b) => a.nombre.localeCompare(b.nombre))
 
   const precios = conPrecio.map((x) => x.precioFinal)
   const precioMin = precios.length ? Math.min(...precios) : 0
@@ -91,7 +107,11 @@ export default async function ProductosPage({ searchParams }: Props) {
   // Filtrado
   const filtrados = conPrecio.filter(({ producto, precioFinal }) => {
     if (categoriasSel.length && !categoriasSel.includes(producto.categoria.slug)) return false
-    if (marcasSel.length && (!producto.marca || !marcasSel.includes(producto.marca))) return false
+    if (
+      marcasSel.length &&
+      (!producto.marca || !marcasSel.includes(normMarca(producto.marca)))
+    )
+      return false
     if (min !== undefined && precioFinal < min) return false
     if (max !== undefined && precioFinal > max) return false
     return true
