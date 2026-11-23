@@ -5,15 +5,21 @@ import { ProductoForm } from '@/components/admin/ProductoForm'
 export const metadata: Metadata = { title: 'Nuevo Producto | Admin MAT-X' }
 
 export default async function NuevoProductoPage() {
-  const categorias = await prisma.categoria.findMany({
-    orderBy: { orden: 'asc' },
-    select: { id: true, nombre: true },
-  })
+  const [categorias, marcas] = await Promise.all([
+    prisma.categoria.findMany({
+      orderBy: { orden: 'asc' },
+      select: { id: true, nombre: true },
+    }),
+    prisma.marca.findMany({
+      orderBy: { nombre: 'asc' },
+      select: { id: true, nombre: true },
+    }),
+  ])
 
   return (
     <div>
       <h1 className="font-heading text-3xl font-bold uppercase mb-6">Nuevo Producto</h1>
-      <ProductoForm categorias={categorias} />
+      <ProductoForm categorias={categorias} marcas={marcas} />
     </div>
   )
 }

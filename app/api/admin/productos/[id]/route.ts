@@ -14,7 +14,7 @@ const VarianteSchema = z.object({
 const UpdateProductoSchema = z.object({
   nombre: z.string().min(2).max(200),
   slug: z.string().min(2).max(200),
-  marca: z.string().max(100).optional().nullable(),
+  marcaId: z.string().optional().nullable(),
   sku: z.string().max(50).optional().nullable(),
   descripcion: z.string().max(2000).optional().nullable(),
   precio: z.number().int().positive(),
@@ -68,13 +68,21 @@ export async function PATCH(
       return NextResponse.json({ error: 'Ya existe otro producto con ese slug' }, { status: 409 })
     }
 
+    // Verificar que la marca exista (si se eligió una)
+    if (productoData.marcaId) {
+      const marca = await prisma.marca.findUnique({ where: { id: productoData.marcaId } })
+      if (!marca) {
+        return NextResponse.json({ error: 'La marca elegida no existe' }, { status: 400 })
+      }
+    }
+
     // Actualizar producto
-    const producto = await prisma.producto.update({
+    await prisma.producto.update({
       where: { id },
       data: {
         ...productoData,
         sku: productoData.sku || null,
-        marca: productoData.marca || null,
+        marcaId: productoData.marcaId || null,
         descripcion: productoData.descripcion || null,
         descuento: productoData.descuento || null,
       },

@@ -2,6 +2,9 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { Hero } from '@/components/home/Hero'
 import { CategoryGrid } from '@/components/home/CategoryGrid'
+import { BrandsCarousel } from '@/components/home/BrandsCarousel'
+import { FeaturedBanners } from '@/components/home/FeaturedBanners'
+import { ParallaxBanner } from '@/components/home/ParallaxBanner'
 import { ProductCard } from '@/components/product/ProductCard'
 import { ProductCarousel } from '@/components/product/ProductCarousel'
 import { prisma } from '@/lib/prisma'
@@ -17,6 +20,7 @@ async function getDestacados() {
     where: { activo: true, destacado: true },
     include: {
       categoria: { select: { nombre: true, slug: true } },
+      marca: { select: { nombre: true, slug: true } },
       imagenes: { orderBy: { orden: 'asc' } },
       variantes: { select: { id: true, nombre: true, precio: true, stock: true } },
     },
@@ -30,11 +34,65 @@ async function getConfig() {
   return config?.descuentoTransferencia ?? 0
 }
 
+// Solo las marcas que tienen logo cargado
+async function getMarcasConLogo() {
+  const marcas = await prisma.marca.findMany({
+    where: { logoUrl: { not: null } },
+    select: { id: true, nombre: true, slug: true, logoUrl: true },
+    orderBy: { nombre: 'asc' },
+  })
+
+  return marcas.flatMap((m) =>
+    m.logoUrl ? [{ id: m.id, nombre: m.nombre, slug: m.slug, logoUrl: m.logoUrl }] : []
+  )
+}
+
+async function getDestacadosHome() {
+  return prisma.destacadoHome.findMany({
+    where: { producto: { activo: true } },
+    select: {
+      id: true,
+      imagenUrl: true,
+      producto: { select: { nombre: true, slug: true } },
+    },
+    orderBy: { orden: 'asc' },
+  })
+}
+
+async function getCategorias() {
+  return prisma.categoria.findMany({
+    select: { id: true, nombre: true, slug: true, descripcion: true, imagenUrl: true, imagenEscala: true },
+    orderBy: [{ orden: 'asc' }, { nombre: 'asc' }],
+  })
+}
+
+async function getBannerParallax() {
+  const b = await prisma.bannerParallax.findUnique({ where: { id: 1 } })
+  if (!b || !b.activo || !b.imagenUrl) return null
+
+  return {
+    imagenUrl: b.imagenUrl,
+    overlay: b.overlay,
+    altura: b.altura,
+    intensidad: b.intensidad,
+    anchoCompleto: b.anchoCompleto,
+    titulo: b.titulo,
+    subtitulo: b.subtitulo,
+    botonTexto: b.botonTexto,
+    botonUrl: b.botonUrl,
+  }
+}
+
 export default async function HomePage() {
-  const [destacados, descuentoTransferencia] = await Promise.all([
-    getDestacados(),
-    getConfig(),
-  ])
+  const [destacados, descuentoTransferencia, marcasConLogo, bannersHome, categorias, bannerParallax] =
+    await Promise.all([
+      getDestacados(),
+      getConfig(),
+      getMarcasConLogo(),
+      getDestacadosHome(),
+      getCategorias(),
+      getBannerParallax(),
+    ])
 
   return (
     <div>
@@ -67,7 +125,13 @@ export default async function HomePage() {
         )}
       </section>
 
-      <CategoryGrid />
+      <FeaturedBanners items={bannersHome} />
+
+      <CategoryGrid categorias={categorias} />
+
+      <ParallaxBanner banner={bannerParallax} />
+
+      <BrandsCarousel marcas={marcasConLogo} />
     </div>
   )
 }

@@ -9,18 +9,35 @@ datasource db {
 }
 
 model Categoria {
-  id        String     @id @default(cuid())
-  nombre    String
-  slug      String     @unique
-  orden     Int        @default(0)
-  productos Producto[]
+  id             String     @id @default(cuid())
+  nombre         String
+  slug           String     @unique
+  descripcion    String?
+  imagenUrl      String?
+  imagenPublicId String?
+  imagenEscala   Int        @default(70)
+  orden          Int        @default(0)
+  productos      Producto[]
+}
+
+model Marca {
+  id           String     @id @default(cuid())
+  nombre       String     @unique
+  slug         String     @unique
+  logoUrl      String?
+  logoPublicId String?
+  createdAt    DateTime   @default(now())
+  productos    Producto[]
 }
 
 model Producto {
   id          String     @id @default(cuid())
   nombre      String
   slug        String     @unique
-  marca       String?
+  // TEMPORAL: columna vieja "marca" (texto libre). Se elimina en el paso 7.
+  marcaTexto  String?    @map("marca")
+  marca       Marca?     @relation(fields: [marcaId], references: [id], onDelete: Restrict)
+  marcaId     String?
   sku         String?    @unique
   descripcion String?
   precio      Int
@@ -30,12 +47,14 @@ model Producto {
   destacado   Boolean    @default(false)
   categoria   Categoria  @relation(fields: [categoriaId], references: [id])
   categoriaId String
-  imagenes    Imagen[]
-  variantes   Variante[]
-  createdAt   DateTime   @default(now())
+  imagenes       Imagen[]
+  variantes      Variante[]
+  destacadosHome DestacadoHome[]
+  createdAt      DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
 
   @@index([categoriaId])
+  @@index([marcaId])
   @@index([activo, destacado])
 }
 
@@ -82,6 +101,33 @@ model Pedido {
 model Config {
   id                     Int @id @default(1)
   descuentoTransferencia Int @default(0)
+}
+
+model BannerParallax {
+  id             Int     @id @default(1)
+  activo         Boolean @default(false)
+  imagenUrl      String?
+  imagenPublicId String?
+  overlay        Int     @default(40)
+  altura         Int     @default(480)
+  intensidad     Int     @default(60)
+  anchoCompleto  Boolean @default(true)
+  titulo         String?
+  subtitulo      String?
+  botonTexto     String?
+  botonUrl       String?
+}
+
+model DestacadoHome {
+  id             String   @id @default(cuid())
+  orden          Int      @unique // 0, 1, 2: posición en la home
+  imagenUrl      String
+  imagenPublicId String
+  producto       Producto @relation(fields: [productoId], references: [id], onDelete: Cascade)
+  productoId     String
+  createdAt      DateTime @default(now())
+
+  @@index([productoId])
 }
 
 enum EstadoPedido {

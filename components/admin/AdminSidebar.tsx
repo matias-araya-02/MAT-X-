@@ -4,12 +4,16 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { signOut } from 'next-auth/react'
-import { LayoutDashboard, Package, Gamepad2, Settings, LogOut } from 'lucide-react'
+import { LayoutDashboard, Package, Gamepad2, FolderTree, Tag, Star, Sparkles, Settings, LogOut } from 'lucide-react'
 
 const NAV_LINKS = [
   { href: '/admin', label: 'Dashboard', icon: LayoutDashboard, exact: true },
   { href: '/admin/pedidos', label: 'Pedidos', icon: Package, exact: false },
   { href: '/admin/productos', label: 'Productos', icon: Gamepad2, exact: false },
+  { href: '/admin/categorias', label: 'Categorías', icon: FolderTree, exact: false },
+  { href: '/admin/marcas', label: 'Marcas', icon: Tag, exact: false },
+  { href: '/admin/destacados', label: 'Destacados', icon: Star, exact: false },
+  { href: '/admin/banner', label: 'Banner', icon: Sparkles, exact: false },
   { href: '/admin/config', label: 'Configuración', icon: Settings, exact: false },
 ]
 

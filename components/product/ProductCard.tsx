@@ -1,10 +1,11 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { calcularPrecioFinal } from '@/lib/pricing'
-import type { Producto, Categoria, Imagen, Variante } from '@prisma/client'
+import type { Producto, Categoria, Marca, Imagen, Variante } from '@prisma/client'
 
 type ProductoCard = Producto & {
   categoria: Pick<Categoria, 'nombre' | 'slug'>
+  marca: Pick<Marca, 'nombre' | 'slug'> | null
   imagenes: Pick<Imagen, 'url' | 'alt'>[]
   variantes: Pick<Variante, 'id' | 'nombre' | 'precio' | 'stock'>[]
 }
@@ -75,7 +76,7 @@ export function ProductCard({ producto, descuentoTransferencia = 0 }: Props) {
         {/* Marca */}
         {producto.marca && (
           <p className="font-mono text-[13px] font-bold uppercase leading-none tracking-wider text-primary">
-            {producto.marca}
+            {producto.marca.nombre}
           </p>
         )}
 

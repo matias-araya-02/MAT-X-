@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { AlertTriangle, Camera, Check, X } from 'lucide-react'
 
@@ -16,11 +17,16 @@ interface Categoria {
   nombre: string
 }
 
+interface Marca {
+  id: string
+  nombre: string
+}
+
 interface ProductoData {
   id?: string
   nombre: string
   slug: string
-  marca: string
+  marcaId: string // '' = sin marca
   sku: string
   descripcion: string
   precio: number
@@ -42,6 +48,7 @@ interface ImagenPendiente {
 
 interface Props {
   categorias: Categoria[]
+  marcas: Marca[]
   producto?: ProductoData
 }
 
@@ -57,14 +64,14 @@ function slugify(text: string): string {
     .replace(/^-+|-+$/g, '')
 }
 
-export function ProductoForm({ categorias, producto }: Props) {
+export function ProductoForm({ categorias, marcas, producto }: Props) {
   const router = useRouter()
   const isEditing = !!producto?.id
 
   const [form, setForm] = useState<ProductoData>({
     nombre: producto?.nombre ?? '',
     slug: producto?.slug ?? '',
-    marca: producto?.marca ?? '',
+    marcaId: producto?.marcaId ?? '',
     sku: producto?.sku ?? '',
     descripcion: producto?.descripcion ?? '',
     precio: producto?.precio ?? 0,
@@ -173,7 +180,7 @@ export function ProductoForm({ categorias, producto }: Props) {
       if (isEditing) {
         const payload = {
           ...form,
-          marca: form.marca || null,
+          marcaId: form.marcaId || null,
           sku: form.sku || null,
           descripcion: form.descripcion || null,
           descuento: form.descuento || null,
@@ -213,7 +220,7 @@ export function ProductoForm({ categorias, producto }: Props) {
 
         const payload = {
           ...form,
-          marca: form.marca || null,
+          marcaId: form.marcaId || null,
           sku: form.sku || null,
           descripcion: form.descripcion || null,
           descuento: form.descuento || null,
@@ -273,7 +280,7 @@ export function ProductoForm({ categorias, producto }: Props) {
       if (fallidas.length > 0) {
         setError(
           `El producto se creó, pero no se pudieron subir: ${fallidas.join(', ')}. ` +
-          'Podés reintentar con el botón o cargarlas desde la edición del producto.'
+            'Podés reintentar con el botón o cargarlas desde la edición del producto.'
         )
         return
       }
@@ -356,8 +363,9 @@ export function ProductoForm({ categorias, producto }: Props) {
               setArrastrando(false)
               agregarArchivos(Array.from(e.dataTransfer.files))
             }}
-            className={`flex flex-col items-center justify-center border-2 border-dashed p-6 cursor-pointer transition-colors ${arrastrando ? 'border-primary bg-primary/5' : 'border-primary/30 hover:border-primary'
-              } ${loading ? 'opacity-50 pointer-events-none' : ''}`}
+            className={`flex flex-col items-center justify-center border-2 border-dashed p-6 cursor-pointer transition-colors ${
+              arrastrando ? 'border-primary bg-primary/5' : 'border-primary/30 hover:border-primary'
+            } ${loading ? 'opacity-50 pointer-events-none' : ''}`}
           >
             <Camera size={24} className="mb-1 text-primary" />
             <span className="font-mono text-xs text-muted">
@@ -429,7 +437,7 @@ export function ProductoForm({ categorias, producto }: Props) {
         </div>
       </div>
 
-      {/* Categoría + SKU + Marca */}
+      {/* Categoría + Marca + SKU */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div>
           <label className="block font-mono text-xs text-muted uppercase tracking-wider mb-1">
@@ -450,13 +458,24 @@ export function ProductoForm({ categorias, producto }: Props) {
           <label className="block font-mono text-xs text-muted uppercase tracking-wider mb-1">
             Marca
           </label>
-          <input
-            type="text"
-            value={form.marca}
-            onChange={(e) => updateField('marca', e.target.value)}
+          <select
+            value={form.marcaId}
+            onChange={(e) => updateField('marcaId', e.target.value)}
             className="w-full bg-background border border-primary/30 px-3 py-2 font-mono text-sm focus:outline-none focus:border-primary"
-            placeholder="Attack Shark, Redragon..."
-          />
+          >
+            <option value="">Sin marca</option>
+            {marcas.map((m) => (
+              <option key={m.id} value={m.id}>{m.nombre}</option>
+            ))}
+          </select>
+          {marcas.length === 0 && (
+            <p className="font-mono text-xs text-muted mt-1">
+              Todavía no hay marcas.{' '}
+              <Link href="/admin/marcas/nueva" className="text-primary hover:underline">
+                Crear una
+              </Link>
+            </p>
+          )}
         </div>
         <div>
           <label className="block font-mono text-xs text-muted uppercase tracking-wider mb-1">

@@ -13,13 +13,17 @@ interface Props {
 export default async function EditarProductoPage({ params }: Props) {
   const { id } = await params
 
-  const [producto, categorias] = await Promise.all([
+  const [producto, categorias, marcas] = await Promise.all([
     prisma.producto.findUnique({
       where: { id },
       include: { variantes: true, imagenes: { orderBy: { orden: 'asc' } } },
     }),
     prisma.categoria.findMany({
       orderBy: { orden: 'asc' },
+      select: { id: true, nombre: true },
+    }),
+    prisma.marca.findMany({
+      orderBy: { nombre: 'asc' },
       select: { id: true, nombre: true },
     }),
   ])
@@ -30,7 +34,7 @@ export default async function EditarProductoPage({ params }: Props) {
     id: producto.id,
     nombre: producto.nombre,
     slug: producto.slug,
-    marca: producto.marca ?? '',
+    marcaId: producto.marcaId ?? '',
     sku: producto.sku ?? '',
     descripcion: producto.descripcion ?? '',
     precio: producto.precio,
@@ -68,7 +72,7 @@ export default async function EditarProductoPage({ params }: Props) {
       </div>
 
       {/* Formulario de datos */}
-      <ProductoForm categorias={categorias} producto={productoData} />
+      <ProductoForm categorias={categorias} marcas={marcas} producto={productoData} />
     </div>
   )
 }

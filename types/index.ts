@@ -1,18 +1,20 @@
 // Tipos globales del proyecto MAT-X
 // Los tipos de Prisma se importan directamente desde @prisma/client
 
-import type { Producto, Categoria, Variante, Imagen, Pedido, Config } from '@prisma/client'
+import type { Producto, Categoria, Marca, Variante, Imagen, Pedido, Config } from '@prisma/client'
 
 // ─── Producto con relaciones ────────────────────────────────────────────────
 
 export type ProductoConRelaciones = Producto & {
   categoria: Pick<Categoria, 'nombre' | 'slug'>
+  marca: Pick<Marca, 'nombre' | 'slug'> | null
   imagenes: Imagen[]
   variantes: Variante[]
 }
 
 export type ProductoCard = Producto & {
   categoria: Pick<Categoria, 'nombre' | 'slug'>
+  marca: Pick<Marca, 'nombre' | 'slug'> | null
   imagenes: Pick<Imagen, 'url' | 'alt'>[]
   variantes: Pick<Variante, 'id' | 'nombre' | 'precio' | 'stock'>[]
 }

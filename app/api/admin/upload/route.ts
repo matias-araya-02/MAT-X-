@@ -12,10 +12,25 @@ export async function POST(req: NextRequest) {
     const formData = await req.formData()
     const file = formData.get('file') as File | null
     const productoId = formData.get('productoId') as string | null
+    const folderParam = formData.get('folder') as string | null
+
+    // Carpeta de destino en Cloudinary (solo valores permitidos)
+    const folder =
+      folderParam === 'marcas'
+        ? 'mat-x/marcas'
+        : folderParam === 'destacados'
+          ? 'mat-x/destacados'
+          : folderParam === 'categorias'
+            ? 'mat-x/categorias'
+            : folderParam === 'banner'
+              ? 'mat-x/banner'
+              : 'mat-x/productos'
 
     if (!file) {
       return NextResponse.json({ error: 'No se envió ningún archivo' }, { status: 400 })
     }
+
+    const esSvg = file.type === 'image/svg+xml'
 
     // Convertir File a buffer
     const bytes = await file.arrayBuffer()
@@ -31,11 +46,10 @@ export async function POST(req: NextRequest) {
       cloudinary.uploader
         .upload_stream(
           {
-            folder: 'mat-x/productos',
+            folder,
             resource_type: 'image',
-            transformation: [
-              { quality: 'auto', fetch_format: 'auto' },
-            ],
+            // El SVG se guarda sin transformaciones para que siga siendo vectorial
+            ...(esSvg ? {} : { transformation: [{ quality: 'auto', fetch_format: 'auto' }] }),
           },
           (error, result) => {
             if (error) reject(error)

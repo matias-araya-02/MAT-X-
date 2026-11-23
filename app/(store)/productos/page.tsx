@@ -15,11 +15,16 @@ async function getCategorias() {
   return prisma.categoria.findMany({ orderBy: { orden: 'asc' } })
 }
 
+async function getMarcas() {
+  return prisma.marca.findMany({ orderBy: { nombre: 'asc' } })
+}
+
 async function getProductos() {
   return prisma.producto.findMany({
     where: { activo: true },
     include: {
       categoria: { select: { nombre: true, slug: true } },
+      marca: { select: { nombre: true, slug: true } },
       imagenes: { orderBy: { orden: 'asc' } },
       variantes: { select: { id: true, nombre: true, precio: true, stock: true } },
     },
@@ -49,19 +54,17 @@ const toInt = (v?: string) => {
   return Number.isFinite(n) && n >= 0 ? n : undefined
 }
 
-// Normaliza una marca para compararla: sin espacios sobrantes ni mayúsculas
-const normMarca = (m: string) => m.trim().replace(/\s+/g, ' ').toLowerCase()
-
 export default async function ProductosPage({ searchParams }: Props) {
   const sp = await searchParams
   const categoriasSel = toList(sp.categoria)
-  const marcasSel = toList(sp.marca).map(normMarca)
+  const marcasSel = toList(sp.marca)
   const min = toInt(sp.min)
   const max = toInt(sp.max)
   const orden = sp.orden ?? 'recientes'
 
-  const [categorias, todos, descuentoTransferencia] = await Promise.all([
+  const [categorias, marcas, todos, descuentoTransferencia] = await Promise.all([
     getCategorias(),
+    getMarcas(),
     getProductos(),
     getConfig(),
   ])
@@ -79,26 +82,14 @@ export default async function ProductosPage({ searchParams }: Props) {
     count: todos.filter((p) => p.categoria.slug === c.slug).length,
   }))
 
-  // Marcas agrupadas sin importar mayúsculas/espacios.
-  // Para mostrar se usa la variante escrita más veces.
-  const marcasAgrupadas = new Map<string, { count: number; variantes: Map<string, number> }>()
-  for (const p of todos) {
-    if (!p.marca) continue
-    const limpia = p.marca.trim().replace(/\s+/g, ' ')
-    if (!limpia) continue
-    const clave = normMarca(limpia)
-    const grupo = marcasAgrupadas.get(clave) ?? { count: 0, variantes: new Map() }
-    grupo.count += 1
-    grupo.variantes.set(limpia, (grupo.variantes.get(limpia) ?? 0) + 1)
-    marcasAgrupadas.set(clave, grupo)
-  }
-
-  const marcasFacet = [...marcasAgrupadas.values()]
-    .map((g) => ({
-      nombre: [...g.variantes.entries()].sort((a, b) => b[1] - a[1])[0][0],
-      count: g.count,
+  // Solo se muestran las marcas que tienen al menos un producto activo
+  const marcasFacet = marcas
+    .map((m) => ({
+      nombre: m.nombre,
+      slug: m.slug,
+      count: todos.filter((p) => p.marca?.slug === m.slug).length,
     }))
-    .sort((a, b) => a.nombre.localeCompare(b.nombre))
+    .filter((m) => m.count > 0)
 
   const precios = conPrecio.map((x) => x.precioFinal)
   const precioMin = precios.length ? Math.min(...precios) : 0
@@ -107,11 +98,7 @@ export default async function ProductosPage({ searchParams }: Props) {
   // Filtrado
   const filtrados = conPrecio.filter(({ producto, precioFinal }) => {
     if (categoriasSel.length && !categoriasSel.includes(producto.categoria.slug)) return false
-    if (
-      marcasSel.length &&
-      (!producto.marca || !marcasSel.includes(normMarca(producto.marca)))
-    )
-      return false
+    if (marcasSel.length && (!producto.marca || !marcasSel.includes(producto.marca.slug))) return false
     if (min !== undefined && precioFinal < min) return false
     if (max !== undefined && precioFinal > max) return false
     return true

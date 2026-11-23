@@ -17,6 +17,7 @@ async function getProducto(slug: string) {
     where: { slug, activo: true },
     include: {
       categoria: { select: { nombre: true, slug: true } },
+      marca: { select: { nombre: true, slug: true } },
       imagenes: { orderBy: { orden: 'asc' } },
       variantes: { orderBy: { nombre: 'asc' } },
     },
@@ -32,6 +33,7 @@ async function getRelacionados(categoriaSlug: string, excludeId: string) {
     },
     include: {
       categoria: { select: { nombre: true, slug: true } },
+      marca: { select: { nombre: true, slug: true } },
       imagenes: { orderBy: { orden: 'asc' } },
       variantes: { select: { id: true, nombre: true, precio: true, stock: true } },
     },
@@ -78,13 +80,12 @@ export default async function ProductoDetallePage({ params }: Props) {
     ? Math.round(precioFinal * (1 - descuentoTransferencia / 100))
     : null
 
-  // Link del breadcrumb: categoría + marca (la marca se codifica sola)
-  const marca = producto.marca?.trim() || null
-  const marcaHref = marca
+  // Link del breadcrumb: categoría + marca (se codifica solo)
+  const marcaHref = producto.marca
     ? `/productos?${new URLSearchParams({
-      categoria: producto.categoria.slug,
-      marca,
-    }).toString()}`
+        categoria: producto.categoria.slug,
+        marca: producto.marca.slug,
+      }).toString()}`
     : null
 
   return (
@@ -98,11 +99,11 @@ export default async function ProductoDetallePage({ params }: Props) {
         <Link href={`/productos?categoria=${producto.categoria.slug}`} className="hover:text-primary transition-colors">
           {producto.categoria.nombre}
         </Link>
-        {marca && marcaHref && (
+        {producto.marca && marcaHref && (
           <>
             <ChevronRight size={12} />
             <Link href={marcaHref} className="hover:text-primary transition-colors">
-              {marca}
+              {producto.marca.nombre}
             </Link>
           </>
         )}
@@ -122,7 +123,7 @@ export default async function ProductoDetallePage({ params }: Props) {
           {/* Marca */}
           {producto.marca && (
             <p className="font-mono text-xs text-primary font-bold uppercase tracking-wider mt-3">
-              {producto.marca}
+              {producto.marca.nombre}
             </p>
           )}
 
