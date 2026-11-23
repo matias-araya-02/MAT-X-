@@ -58,17 +58,18 @@
     @apply bg-surface border border-primary/20 hover:border-primary/60 transition-all duration-200 overflow-hidden;
   }
 
-  /* Botón carrito en tarjeta: violeta liso + placa blanca con contorno fino detrás */
+  /* Botón carrito en tarjeta: botón violeta liso + "placa" blanca con contorno violeta detrás */
   .btn-cart,
   .btn-neo {
     --cart-bg: #7c3aed;
     --cart-bg-hover: #6d28d9;
-    --cart-ink: #7c3aed; /* contorno de la placa */
-    --o: 5px;            /* cuánto asoma la placa (y cuánto se desplaza el botón en hover) */
+    --cart-ink: #7c3aed; /* color del contorno de la placa */
+    --o: 5px;            /* cuánto asoma la placa (reposo) */
 
     @apply relative flex w-full cursor-pointer items-center justify-center px-4 py-2.5 text-center font-heading text-xs font-bold uppercase tracking-wider text-white;
     background-color: var(--cart-bg);
     border: 0;
+    /* 1º (arriba): relleno blanco, 1px más chico  |  2º (abajo): violeta = el contorno */
     box-shadow:
       var(--o) var(--o) 0 -1px #fff,
       var(--o) var(--o) 0 0 var(--cart-ink);
@@ -83,14 +84,19 @@
     inset: -6px;
   }
 
-  /* Hover: el botón se mueve justo lo que asomaba la placa y la tapa por completo */
+  /* Hover: el botón se desliza hacia la placa; la placa queda quieta */
   .btn-cart:hover:not(:disabled),
-  .btn-neo:hover:not(:disabled),
+  .btn-neo:hover:not(:disabled) {
+    --o: 1px;
+    background-color: var(--cart-bg-hover);
+    transform: translate(4px, 4px);
+  }
+
+  /* Click: se hunde un poco más */
   .btn-cart:active:not(:disabled),
   .btn-neo:active:not(:disabled) {
-    background-color: var(--cart-bg-hover);
-    transform: translate(var(--o), var(--o));
-    box-shadow: none;
+    --o: 0px;
+    transform: translate(5px, 5px);
   }
 
   .btn-cart:disabled,

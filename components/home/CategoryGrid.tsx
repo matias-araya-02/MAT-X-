@@ -23,7 +23,7 @@ function CategoriaCard({ cat }: { cat: Categoria }) {
   return (
     <Link
       href={`/productos?categoria=${cat.slug}`}
-      className="product-card group block bg-white"
+      className="product-card group block h-full w-full bg-white"
     >
       <div className="card-label">{cat.nombre}</div>
 
