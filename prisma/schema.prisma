@@ -26,6 +26,7 @@ model Marca {
   slug         String     @unique
   logoUrl      String?
   logoPublicId String?
+  logoEscala   Int        @default(80)
   createdAt    DateTime   @default(now())
   productos    Producto[]
 }

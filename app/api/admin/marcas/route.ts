@@ -24,6 +24,7 @@ const MarcaSchema = z.object({
     .nullable()
     .optional(),
   logoPublicId: z.string().trim().max(300).nullable().optional(),
+  logoEscala: z.number().int().min(20).max(100).optional().default(80),
 })
 
 export async function POST(req: NextRequest) {
@@ -41,7 +42,7 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    const { nombre, slug, logoUrl, logoPublicId } = parsed.data
+    const { nombre, slug, logoUrl, logoPublicId, logoEscala } = parsed.data
 
     const nombreExistente = await prisma.marca.findFirst({
       where: { nombre: { equals: nombre, mode: 'insensitive' } },
@@ -61,6 +62,7 @@ export async function POST(req: NextRequest) {
         slug,
         logoUrl: logoUrl ?? null,
         logoPublicId: logoUrl ? (logoPublicId ?? null) : null,
+        logoEscala: logoEscala ?? 80,
       },
     })
     return NextResponse.json({ ok: true, marca }, { status: 201 })

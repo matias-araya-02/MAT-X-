@@ -14,7 +14,7 @@ export default async function EditarMarcaPage({ params }: Props) {
 
   const marca = await prisma.marca.findUnique({
     where: { id },
-    select: { id: true, nombre: true, slug: true, logoUrl: true, logoPublicId: true },
+    select: { id: true, nombre: true, slug: true, logoUrl: true, logoPublicId: true, logoEscala: true },
   })
 
   if (!marca) notFound()

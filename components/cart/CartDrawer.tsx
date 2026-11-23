@@ -59,6 +59,7 @@ export function CartDrawer() {
       {/* Overlay */}
       {isOpen && (
         <div
+          data-lenis-prevent
           className="fixed inset-0 bg-black/60 z-40 backdrop-blur-sm"
           onClick={closeCart}
         />
@@ -66,6 +67,7 @@ export function CartDrawer() {
 
       {/* Drawer */}
       <aside
+        data-lenis-prevent
         className={`fixed top-0 right-0 h-full w-full max-w-sm bg-background z-50 shadow-2xl transition-transform duration-300 flex flex-col ${
           isOpen ? 'translate-x-0' : 'translate-x-full'
         }`}

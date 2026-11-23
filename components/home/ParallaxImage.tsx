@@ -9,6 +9,9 @@ interface Props {
   intensidad: number
 }
 
+// Si el sistema pide reducir movimiento, el efecto se mantiene pero con este porcentaje del recorrido
+const FACTOR_MOVIMIENTO_REDUCIDO = 1
+
 export function ParallaxImage({ src, intensidad }: Props) {
   const seccionRef = useRef<HTMLDivElement>(null)
   const capaRef = useRef<HTMLDivElement>(null)
@@ -21,8 +24,9 @@ export function ParallaxImage({ src, intensidad }: Props) {
     const capa = capaRef.current
     if (!seccion || !capa || recorrido === 0) return
 
-    // Respeta a quienes tienen activada la opción de reducir movimiento
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    const factor = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      ? FACTOR_MOVIMIENTO_REDUCIDO
+      : 1
 
     let frame = 0
 
@@ -39,7 +43,7 @@ export function ParallaxImage({ src, intensidad }: Props) {
         Math.min(1, (alto / 2 - centro) / (alto / 2 + rect.height / 2))
       )
 
-      capa.style.transform = `translate3d(0, ${progreso * recorrido * rect.height}px, 0)`
+      capa.style.transform = `translate3d(0, ${progreso * recorrido * factor * rect.height}px, 0)`
     }
 
     const pedirFrame = () => {
@@ -47,11 +51,12 @@ export function ParallaxImage({ src, intensidad }: Props) {
     }
 
     actualizar()
-    window.addEventListener('scroll', pedirFrame, { passive: true })
+    // capture: true detecta el scroll de la ventana y también el de cualquier contenedor con overflow
+    window.addEventListener('scroll', pedirFrame, { passive: true, capture: true })
     window.addEventListener('resize', pedirFrame)
 
     return () => {
-      window.removeEventListener('scroll', pedirFrame)
+      window.removeEventListener('scroll', pedirFrame, true)
       window.removeEventListener('resize', pedirFrame)
       if (frame) cancelAnimationFrame(frame)
       capa.style.transform = ''

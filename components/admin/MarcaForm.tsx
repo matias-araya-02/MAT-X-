@@ -10,6 +10,7 @@ interface MarcaData {
   slug: string
   logoUrl?: string | null
   logoPublicId?: string | null
+  logoEscala?: number
 }
 
 interface Props {
@@ -35,7 +36,7 @@ interface LogoSubido {
 }
 
 const MAX_BYTES = 2 * 1024 * 1024
-const TIPOS_PERMITIDOS = ['image/png', 'image/webp', 'image/jpeg']
+const TIPOS_PERMITIDOS = ['image/svg+xml', 'image/png', 'image/webp', 'image/jpeg']
 
 function slugify(text: string): string {
   return text
@@ -76,6 +77,7 @@ export function MarcaForm({ marca }: Props) {
   )
   const [logoNuevo, setLogoNuevo] = useState<LogoNuevo | null>(null)
   const [logoSubido, setLogoSubido] = useState<LogoSubido | null>(null)
+  const [escala, setEscala] = useState(marca?.logoEscala ?? 80)
   const [errorLogo, setErrorLogo] = useState<string | null>(null)
 
   // Liberar la vista previa al salir del formulario
@@ -95,7 +97,7 @@ export function MarcaForm({ marca }: Props) {
     if (!file) return
 
     if (!TIPOS_PERMITIDOS.includes(file.type)) {
-      setErrorLogo('Formato no permitido. Usá PNG, WebP o JPG.')
+      setErrorLogo('Formato no permitido. Usá SVG, PNG, WebP o JPG.')
       return
     }
     if (file.size > MAX_BYTES) {
@@ -177,6 +179,7 @@ export function MarcaForm({ marca }: Props) {
             slug,
             logoUrl: logo?.url ?? null,
             logoPublicId: logo?.publicId ?? null,
+            logoEscala: escala,
           }),
         }
       )
@@ -265,13 +268,14 @@ export function MarcaForm({ marca }: Props) {
         </label>
 
         <div className="flex items-center gap-4">
-          <div className="relative flex h-24 w-48 items-center justify-center border border-primary/20 bg-white">
+          <div className="relative flex h-28 w-56 items-center justify-center border border-primary/20 bg-white overflow-hidden">
             {logoMostrado ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={logoMostrado}
                 alt={nombre ? `Logo de ${nombre}` : 'Logo'}
-                className="absolute inset-0 h-full w-full object-contain p-2"
+                className="object-contain transition-all"
+                style={{ width: `${escala}%`, height: `${escala}%` }}
               />
             ) : (
               <span className="font-mono text-xs text-muted">Sin logo</span>
@@ -288,7 +292,7 @@ export function MarcaForm({ marca }: Props) {
               {logoMostrado ? 'Cambiar logo' : 'Elegir logo'}
               <input
                 type="file"
-                accept="image/png,image/webp,image/jpeg"
+                accept="image/svg+xml,image/png,image/webp,image/jpeg"
                 disabled={loading}
                 onChange={(e) => {
                   elegirLogo(e.target.files?.[0])
@@ -312,8 +316,27 @@ export function MarcaForm({ marca }: Props) {
           </div>
         </div>
 
+        {/* Deslizador de tamaño (solo si hay logo) */}
+        {logoMostrado && (
+          <div className="mt-4">
+            <div className="flex items-center justify-between font-mono text-xs text-muted mb-1">
+              <span className="uppercase tracking-wider">Tamaño en el carrusel</span>
+              <span>{escala}%</span>
+            </div>
+            <input
+              type="range"
+              min={20}
+              max={100}
+              step={5}
+              value={escala}
+              onChange={(e) => setEscala(Number(e.target.value))}
+              className="w-full accent-primary cursor-pointer"
+            />
+          </div>
+        )}
+
         <p className="font-mono text-xs text-muted mt-2">
-          PNG o WebP con fondo transparente, en formato horizontal · máx 2MB
+          SVG, PNG, WebP o JPG con fondo transparente, en formato horizontal · máx 2MB
         </p>
 
         {errorLogo && (

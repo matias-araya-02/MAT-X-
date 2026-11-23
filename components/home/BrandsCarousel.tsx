@@ -6,6 +6,7 @@ interface MarcaLogo {
   nombre: string
   slug: string
   logoUrl: string
+  logoEscala?: number
 }
 
 interface Props {
@@ -29,20 +30,29 @@ export function BrandsCarousel({ marcas }: Props) {
   const renderMitad = (duplicada: boolean) => (
     <ul aria-hidden={duplicada || undefined} className="flex shrink-0 items-center">
       {base.map((m, i) => (
-        <li key={`${m.id}-${i}`} className="px-10">
+        <li key={`${m.id}-${i}`} className="px-6 md:px-8">
           <Link
             href={`/productos?marca=${m.slug}`}
             tabIndex={duplicada ? -1 : undefined}
             aria-label={duplicada ? undefined : `Ver productos de ${m.nombre}`}
-            className="group relative block h-24 w-64"
+            className="group relative flex h-28 w-72 items-center justify-center md:h-32 md:w-80"
           >
-            <Image
-              src={m.logoUrl}
-              alt={duplicada ? '' : m.nombre}
-              fill
-              sizes="256px"
-              className="object-contain opacity-60 grayscale transition duration-300 group-hover:opacity-100 group-hover:grayscale-0"
-            />
+            <div
+              className="relative transition-transform duration-300 group-hover:scale-105"
+              style={{
+                width: `${m.logoEscala ?? 80}%`,
+                height: `${m.logoEscala ?? 80}%`,
+              }}
+            >
+              <Image
+                src={m.logoUrl}
+                alt={duplicada ? '' : m.nombre}
+                fill
+                unoptimized={m.logoUrl.endsWith('.svg')}
+                sizes="(min-width: 768px) 320px, 288px"
+                className="object-contain opacity-60 grayscale transition duration-300 group-hover:opacity-100 group-hover:grayscale-0"
+              />
+            </div>
           </Link>
         </li>
       ))}
@@ -53,7 +63,7 @@ export function BrandsCarousel({ marcas }: Props) {
     'linear-gradient(to right, transparent, black 8%, black 92%, transparent)'
 
   return (
-    <section className="mx-auto w-full max-w-7xl px-4 py-16">
+    <section className="mx-auto w-full max-w-7xl px-4 py-14 md:py-16">
       <h2 className="mb-8 font-heading text-3xl font-bold uppercase md:text-4xl">
         Marcas
       </h2>

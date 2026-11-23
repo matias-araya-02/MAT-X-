@@ -13,10 +13,6 @@
     --color-muted: #71717A;
   }
 
-  html {
-    scroll-behavior: smooth;
-  }
-
   body {
     @apply bg-background text-text;
   }
@@ -60,6 +56,51 @@
   /* Tarjeta producto */
   .product-card {
     @apply bg-surface border border-primary/20 hover:border-primary/60 transition-all duration-200 overflow-hidden;
+  }
+
+  /* Botón carrito en tarjeta: violeta liso + placa blanca con contorno fino detrás */
+  .btn-cart,
+  .btn-neo {
+    --cart-bg: #7c3aed;
+    --cart-bg-hover: #6d28d9;
+    --cart-ink: #7c3aed; /* contorno de la placa */
+    --o: 5px;            /* cuánto asoma la placa (y cuánto se desplaza el botón en hover) */
+
+    @apply relative flex w-full cursor-pointer items-center justify-center px-4 py-2.5 text-center font-heading text-xs font-bold uppercase tracking-wider text-white;
+    background-color: var(--cart-bg);
+    border: 0;
+    box-shadow:
+      var(--o) var(--o) 0 -1px #fff,
+      var(--o) var(--o) 0 0 var(--cart-ink);
+    transition: transform 0.12s ease, box-shadow 0.12s ease, background-color 0.12s ease;
+  }
+
+  /* Evita que el hover parpadee cuando el botón se mueve */
+  .btn-cart::after,
+  .btn-neo::after {
+    content: '';
+    position: absolute;
+    inset: -6px;
+  }
+
+  /* Hover: el botón se mueve justo lo que asomaba la placa y la tapa por completo */
+  .btn-cart:hover:not(:disabled),
+  .btn-neo:hover:not(:disabled),
+  .btn-cart:active:not(:disabled),
+  .btn-neo:active:not(:disabled) {
+    background-color: var(--cart-bg-hover);
+    transform: translate(var(--o), var(--o));
+    box-shadow: none;
+  }
+
+  .btn-cart:disabled,
+  .btn-neo:disabled {
+    @apply cursor-not-allowed;
+    background-color: #e4e4e7;
+    color: #a1a1aa;
+    box-shadow:
+      5px 5px 0 -1px #fff,
+      5px 5px 0 0 #d4d4d8;
   }
 
   /* Label etiqueta de tarjeta */

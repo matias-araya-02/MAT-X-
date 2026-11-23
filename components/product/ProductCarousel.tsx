@@ -186,7 +186,7 @@ export function ProductCarousel({ children, label = 'Productos' }: Props) {
                     }`}
             >
                 {Children.map(children, (child) => (
-                    <div className="min-w-0 flex-none basis-[calc((100%_-_16px)/2)] snap-start md:basis-[calc((100%_-_32px)/3)] lg:basis-[calc((100%_-_48px)/4)]">
+                    <div className="min-w-0 flex-none basis-[calc((100%_-_16px)/2)] snap-start md:basis-[calc((100%_-_32px)/3)] lg:basis-[calc((100%_-_48px)/4)] flex">
                         {child}
                     </div>
                 ))}

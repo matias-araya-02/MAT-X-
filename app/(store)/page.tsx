@@ -38,12 +38,22 @@ async function getConfig() {
 async function getMarcasConLogo() {
   const marcas = await prisma.marca.findMany({
     where: { logoUrl: { not: null } },
-    select: { id: true, nombre: true, slug: true, logoUrl: true },
+    select: { id: true, nombre: true, slug: true, logoUrl: true, logoEscala: true },
     orderBy: { nombre: 'asc' },
   })
 
   return marcas.flatMap((m) =>
-    m.logoUrl ? [{ id: m.id, nombre: m.nombre, slug: m.slug, logoUrl: m.logoUrl }] : []
+    m.logoUrl
+      ? [
+          {
+            id: m.id,
+            nombre: m.nombre,
+            slug: m.slug,
+            logoUrl: m.logoUrl,
+            logoEscala: m.logoEscala,
+          },
+        ]
+      : []
   )
 }
 

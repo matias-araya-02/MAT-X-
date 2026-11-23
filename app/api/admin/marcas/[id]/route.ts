@@ -25,6 +25,7 @@ const MarcaSchema = z.object({
     .nullable()
     .optional(),
   logoPublicId: z.string().trim().max(300).nullable().optional(),
+  logoEscala: z.number().int().min(20).max(100).optional(),
 })
 
 // Borra un logo de Cloudinary sin romper la operación si falla
@@ -57,7 +58,7 @@ export async function PATCH(
       )
     }
 
-    const { nombre, slug, logoUrl, logoPublicId } = parsed.data
+    const { nombre, slug, logoUrl, logoPublicId, logoEscala } = parsed.data
 
     const existente = await prisma.marca.findUnique({ where: { id } })
     if (!existente) {
@@ -84,11 +85,16 @@ export async function PATCH(
       slug: string
       logoUrl?: string | null
       logoPublicId?: string | null
+      logoEscala?: number
     } = { nombre, slug }
 
     if (logoUrl !== undefined) {
       data.logoUrl = logoUrl
       data.logoPublicId = logoUrl ? (logoPublicId ?? null) : null
+    }
+
+    if (logoEscala !== undefined) {
+      data.logoEscala = logoEscala
     }
 
     const marca = await prisma.marca.update({ where: { id }, data })

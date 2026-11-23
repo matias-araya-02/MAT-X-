@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "Marca" ADD COLUMN "logoEscala" INTEGER NOT NULL DEFAULT 80;
