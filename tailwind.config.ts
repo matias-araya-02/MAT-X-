@@ -12,6 +12,7 @@ const config: Config = {
         primary: '#7C3AED',
         secondary: '#A78BFA',
         accent: '#DDD6FE',
+        lime: '#CEFF32',
         background: '#FFFFFF',
         surface: '#F4F4F5',
         text: '#09090B',

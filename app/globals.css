@@ -40,7 +40,7 @@
 
   /* Badge de descuento */
   .badge-discount {
-    @apply bg-primary text-white font-mono text-xs font-bold px-2 py-0.5 uppercase tracking-wider;
+    @apply bg-lime text-[#09090B] font-mono text-xs font-bold px-2 py-0.5 uppercase tracking-wider;
   }
 
   /* Botón primario */
@@ -86,19 +86,14 @@
     inset: -6px;
   }
 
-  /* Hover: el botón se desliza hacia la placa; la placa queda quieta */
+  /* Hover: el botón se desplaza exactamente sobre la sombra y la cubre por completo sin que se vea el borde */
   .btn-cart:hover:not(:disabled),
-  .btn-neo:hover:not(:disabled) {
-    --o: 1px;
-    background-color: var(--cart-bg-hover);
-    transform: translate(4px, 4px);
-  }
-
-  /* Click: se hunde un poco más */
+  .btn-neo:hover:not(:disabled),
   .btn-cart:active:not(:disabled),
   .btn-neo:active:not(:disabled) {
-    --o: 0px;
-    transform: translate(5px, 5px);
+    background-color: var(--cart-bg-hover);
+    transform: translate(var(--o), var(--o));
+    box-shadow: none;
   }
 
   .btn-cart:disabled,
