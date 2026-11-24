@@ -63,8 +63,10 @@
   .btn-neo {
     --cart-bg: #7c3aed;
     --cart-bg-hover: #6d28d9;
-    --cart-ink: #7c3aed; /* color del contorno de la placa */
-    --o: 5px;            /* cuánto asoma la placa (reposo) */
+    --cart-ink: #7c3aed;
+    /* color del contorno de la placa */
+    --o: 5px;
+    /* cuánto asoma la placa (reposo) */
 
     @apply relative flex w-full cursor-pointer items-center justify-center px-4 py-2.5 text-center font-heading text-xs font-bold uppercase tracking-wider text-white;
     background-color: var(--cart-bg);

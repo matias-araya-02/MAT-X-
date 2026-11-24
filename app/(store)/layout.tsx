@@ -3,6 +3,7 @@ import { Navbar } from '@/components/layout/Navbar'
 import { Footer } from '@/components/layout/Footer'
 import { CartDrawer } from '@/components/cart/CartDrawer'
 import { SmoothScroll } from '@/components/layout/SmoothScroll'
+import { LogoLoader } from '@/components/layout/LogoLoader'
 
 export default function StoreLayout({
   children,
@@ -11,6 +12,7 @@ export default function StoreLayout({
 }) {
   return (
     <>
+      <LogoLoader />
       <SmoothScroll />
       <AnnouncementBar />
       <Navbar />
