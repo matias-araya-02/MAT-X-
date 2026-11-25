@@ -24,7 +24,9 @@ export async function POST(req: NextRequest) {
             ? 'mat-x/categorias'
             : folderParam === 'banner'
               ? 'mat-x/banner'
-              : 'mat-x/productos'
+              : folderParam === 'hero'
+                ? 'mat-x/hero'
+                : 'mat-x/productos'
 
     if (!file) {
       return NextResponse.json({ error: 'No se envió ningún archivo' }, { status: 400 })

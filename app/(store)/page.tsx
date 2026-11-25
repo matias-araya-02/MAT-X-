@@ -1,12 +1,14 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { Hero } from '@/components/home/Hero'
+import type { HeroSlideData } from '@/components/home/HeroShowcase'
 import { CategoryGrid } from '@/components/home/CategoryGrid'
 import { BrandsCarousel } from '@/components/home/BrandsCarousel'
 import { FeaturedBanners } from '@/components/home/FeaturedBanners'
 import { ParallaxBanner } from '@/components/home/ParallaxBanner'
 import { ProductCard } from '@/components/product/ProductCard'
 import { ProductCarousel } from '@/components/product/ProductCarousel'
+import { calcularPrecioFinal } from '@/lib/pricing'
 import { prisma } from '@/lib/prisma'
 
 export const metadata: Metadata = {
@@ -93,20 +95,75 @@ async function getBannerParallax() {
   }
 }
 
+// Slides del hero: solo los activos, de productos activos
+async function getHeroSlides() {
+  return prisma.heroSlide.findMany({
+    where: { activo: true, producto: { activo: true } },
+    orderBy: { orden: 'asc' },
+    select: {
+      id: true,
+      palabra: true,
+      imagenUrl: true,
+      producto: {
+        select: {
+          nombre: true,
+          slug: true,
+          precio: true,
+          descuento: true,
+          categoria: { select: { nombre: true } },
+          marca: { select: { nombre: true } },
+        },
+      },
+    },
+  })
+}
+
 export default async function HomePage() {
-  const [destacados, descuentoTransferencia, marcasConLogo, bannersHome, categorias, bannerParallax] =
-    await Promise.all([
-      getDestacados(),
-      getConfig(),
-      getMarcasConLogo(),
-      getDestacadosHome(),
-      getCategorias(),
-      getBannerParallax(),
-    ])
+  const [
+    destacados,
+    descuentoTransferencia,
+    marcasConLogo,
+    bannersHome,
+    categorias,
+    bannerParallax,
+    heroSlidesRaw,
+  ] = await Promise.all([
+    getDestacados(),
+    getConfig(),
+    getMarcasConLogo(),
+    getDestacadosHome(),
+    getCategorias(),
+    getBannerParallax(),
+    getHeroSlides(),
+  ])
+
+  // Datos listos para el hero (precios calculados en el servidor)
+  const heroSlides: HeroSlideData[] = heroSlidesRaw.map((s) => {
+    const { nombre, slug, precio, descuento, categoria, marca } = s.producto
+    const precioFinal = calcularPrecioFinal(precio, descuento)
+
+    return {
+      id: s.id,
+      nombre,
+      slug,
+      categoria: categoria.nombre,
+      marca: marca?.nombre ?? null,
+      imagenUrl: s.imagenUrl,
+      // Palabra de fondo: la elegida, o el nombre si es corto, o la categoría
+      palabra: (s.palabra?.trim() || (nombre.length <= 12 ? nombre : categoria.nombre)).toUpperCase(),
+      precio,
+      precioFinal,
+      descuento: descuento ?? 0,
+      precioTransferencia:
+        descuentoTransferencia > 0
+          ? Math.round(precioFinal * (1 - descuentoTransferencia / 100))
+          : null,
+    }
+  })
 
   return (
     <div>
-      <Hero />
+      <Hero slides={heroSlides} />
 
       <section className="mx-auto w-full max-w-7xl px-4 py-16">
         <div className="mb-8 flex items-end justify-between gap-4">

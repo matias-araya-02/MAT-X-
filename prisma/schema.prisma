@@ -51,6 +51,7 @@ model Producto {
   imagenes       Imagen[]
   variantes      Variante[]
   destacadosHome DestacadoHome[]
+  heroSlides     HeroSlide[]
   createdAt      DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
 
@@ -129,6 +130,21 @@ model DestacadoHome {
   createdAt      DateTime @default(now())
 
   @@index([productoId])
+}
+
+model HeroSlide {
+  id             String   @id @default(cuid())
+  orden          Int      @default(0)
+  activo         Boolean  @default(true)
+  palabra        String? // palabra gigante de fondo; si es null se usa el nombre del producto
+  imagenUrl      String
+  imagenPublicId String
+  producto       Producto @relation(fields: [productoId], references: [id], onDelete: Cascade)
+  productoId     String
+  createdAt      DateTime @default(now())
+
+  @@index([productoId])
+  @@index([orden])
 }
 
 enum EstadoPedido {

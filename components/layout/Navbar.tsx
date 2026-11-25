@@ -21,7 +21,7 @@ export function Navbar() {
   const cantidad = mounted ? totalItems() : 0
 
   return (
-    <header className="bg-background sticky top-0 z-30 border-b border-primary/10">
+    <header className="bg-background sticky top-0 z-30">
       <nav className="container mx-auto px-4 h-16 flex items-center justify-between">
         {/* Logo */}
         <Link href="/" className="flex items-center">
