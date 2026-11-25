@@ -18,7 +18,7 @@ export function Hero({ slides = [] }: Props) {
   const conSlides = slides.length > 0
 
   return (
-    <section className="relative overflow-hidden">
+    <section className="relative overflow-hidden lg:min-h-[calc(100svh-6rem)]">
       {/* Degradado violeta en la esquina superior derecha (desactivado por defecto) */}
       {ESQUINA_SUPERIOR_DERECHA_INTENSIDAD > 0 && (
         <div
@@ -43,7 +43,7 @@ export function Hero({ slides = [] }: Props) {
         />
       )}
 
-      <div className="container relative mx-auto px-4 py-20 md:py-32">
+      <div className="container relative mx-auto px-4 py-14 md:pt-16 md:pb-24">
         <div
           className={
             conSlides

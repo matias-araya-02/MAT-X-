@@ -42,8 +42,9 @@ const RESPETAR_MOVIMIENTO_REDUCIDO = false
 const VER = {
   flechas: false, // flechas ← → junto a los puntos
   numero: false, // número de slide ("01") en la barra de datos
-  precioAnterior: false, // precio tachado cuando el producto tiene descuento
-  precioTransferencia: false, // línea "$X transferencia" debajo del precio
+  badgeDescuento: true, // etiqueta verde limón "-15%" cuando hay descuento
+  precioAnterior: true, // precio tachado cuando el producto tiene descuento
+  precioTransferencia: true, // línea "$X transferencia" debajo del precio
 }
 
 // ── Intensidad de los elementos decorativos (de 0 a 1) ────────────────────
@@ -396,9 +397,70 @@ export function HeroShowcase({ slides }: Props) {
         </div>
       </div>
 
+      {/* Datos del producto */}
+      <div
+        aria-live={corriendo ? 'off' : 'polite'}
+        aria-atomic="true"
+        className="mx-auto mt-4 w-full max-w-xl border-t border-primary/15 pt-4"
+      >
+        <Link
+          key={actual.id}
+          href={`/productos/${actual.slug}`}
+          className={`group flex flex-wrap items-end justify-between gap-x-8 gap-y-3 ${
+            animar ? 'hero-bar-in' : ''
+          }`}
+        >
+          <div className="flex min-w-0 items-end gap-5">
+            {VER.numero && (
+              <>
+                <span className="font-mono text-4xl font-bold leading-none text-text">
+                  {String(active + 1).padStart(2, '0')}
+                </span>
+                <span aria-hidden className="h-10 w-px bg-primary/20" />
+              </>
+            )}
+            <div className="min-w-0">
+              <p className="font-mono text-xs font-medium uppercase tracking-widest text-primary">
+                {actual.marca ? `${actual.categoria} · ${actual.marca}` : actual.categoria}
+              </p>
+              <div className="mt-1 flex items-center gap-1.5">
+                <p className="truncate font-heading text-xl font-bold uppercase leading-none transition-colors group-hover:text-primary sm:text-2xl">
+                  {actual.nombre}
+                </p>
+                <ArrowUpRight
+                  size={20}
+                  className="shrink-0 text-primary transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="text-right">
+            <div className="flex items-center justify-end gap-2.5">
+              {VER.badgeDescuento && actual.descuento > 0 && (
+                <span className="badge-discount">-{actual.descuento}%</span>
+              )}
+              <span className="font-sans text-3xl font-bold leading-none text-text">
+                ${actual.precioFinal.toLocaleString('es-AR')}
+              </span>
+              {VER.precioAnterior && actual.descuento > 0 && (
+                <span className="font-mono text-sm text-muted line-through">
+                  ${actual.precio.toLocaleString('es-AR')}
+                </span>
+              )}
+            </div>
+            {VER.precioTransferencia && actual.precioTransferencia && (
+              <p className="mt-1.5 font-mono text-base font-normal text-green-600">
+                ${actual.precioTransferencia.toLocaleString('es-AR')} transferencia
+              </p>
+            )}
+          </div>
+        </Link>
+      </div>
+
       {/* Controles */}
       {n > 1 && (
-        <div className="mt-3 flex items-center justify-center gap-2">
+        <div className="mt-8 flex items-center justify-center gap-2">
           {VER.flechas && (
             <button
               type="button"
@@ -441,60 +503,6 @@ export function HeroShowcase({ slides }: Props) {
           )}
         </div>
       )}
-
-      {/* Datos del producto */}
-      <div aria-live={corriendo ? 'off' : 'polite'} aria-atomic="true" className="mt-4">
-        <Link
-          key={actual.id}
-          href={`/productos/${actual.slug}`}
-          className={`group mx-auto flex w-full max-w-xl flex-wrap items-center justify-between gap-x-8 gap-y-3 ${
-            animar ? 'hero-bar-in' : ''
-          }`}
-        >
-          <div className="flex min-w-0 items-center gap-5">
-            {VER.numero && (
-              <>
-                <span className="font-mono text-4xl font-bold leading-none text-text">
-                  {String(active + 1).padStart(2, '0')}
-                </span>
-                <span aria-hidden className="h-10 w-px bg-primary/20" />
-              </>
-            )}
-            <div className="min-w-0">
-              <p className="font-mono text-[11px] uppercase tracking-widest text-primary">
-                {actual.marca ? `${actual.categoria} · ${actual.marca}` : actual.categoria}
-              </p>
-              <p className="mt-1 truncate font-heading text-lg font-bold uppercase transition-colors group-hover:text-primary">
-                {actual.nombre}
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <div className="text-right">
-              <div className="flex items-baseline justify-end gap-2">
-                <span className="font-sans text-3xl font-bold leading-none text-text">
-                  ${actual.precioFinal.toLocaleString('es-AR')}
-                </span>
-                {VER.precioAnterior && actual.descuento > 0 && (
-                  <span className="font-mono text-sm text-muted line-through">
-                    ${actual.precio.toLocaleString('es-AR')}
-                  </span>
-                )}
-              </div>
-              {VER.precioTransferencia && actual.precioTransferencia && (
-                <p className="mt-1 font-mono text-xs text-green-600">
-                  ${actual.precioTransferencia.toLocaleString('es-AR')} transferencia
-                </p>
-              )}
-            </div>
-            <ArrowUpRight
-              size={22}
-              className="text-primary transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
-            />
-          </div>
-        </Link>
-      </div>
     </section>
   )
 }
