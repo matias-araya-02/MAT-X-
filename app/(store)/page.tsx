@@ -165,7 +165,7 @@ export default async function HomePage() {
     <div>
       <Hero slides={heroSlides} />
 
-      <section className="mx-auto w-full max-w-7xl px-4 py-16">
+      <section id="mas-vendidos" className="mx-auto w-full max-w-7xl scroll-mt-16 px-4 py-16">
         <div className="mb-8 flex items-end justify-between gap-4">
           <h2 className="font-heading text-3xl font-bold uppercase md:text-4xl">
             Más vendidos

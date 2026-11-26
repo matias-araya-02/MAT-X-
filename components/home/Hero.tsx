@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { HeroShowcase, type HeroSlideData } from './HeroShowcase'
+import { ScrollLink } from './ScrollLink'
 
 // Difuminado violeta que sube desde el borde inferior del hero.
 // INTENSIDAD: de 0 a 1 (0 = sin difuminado). ALTURA: hasta dónde llega, en % del alto del hero.
@@ -75,9 +76,9 @@ export function Hero({ slides = [] }: Props) {
               <Link href="/productos" className="btn-primary">
                 Ver productos
               </Link>
-              <Link href="/productos?categoria=teclados" className="btn-outline">
-                Teclados
-              </Link>
+              <ScrollLink href="#mas-vendidos" className="btn-outline">
+                Más vendidos
+              </ScrollLink>
             </div>
           </div>
 
