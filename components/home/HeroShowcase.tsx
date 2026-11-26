@@ -41,8 +41,8 @@ const RESPETAR_MOVIMIENTO_REDUCIDO = false
 // ── Qué se muestra (poné true para volver a mostrar algo) ─────────────────
 const VER = {
   flechas: false, // flechas ← → junto a los puntos
-  numero: false, // número de slide ("01") en la barra de datos
-  badgeDescuento: true, // etiqueta verde limón "-15%" cuando hay descuento
+  numero: false, // número de slide ("01") delante de la categoría
+  badgeDescuento: true, // etiqueta "-15%" cuando hay descuento
   precioAnterior: true, // precio tachado cuando el producto tiene descuento
   precioTransferencia: true, // línea "$X transferencia" debajo del precio
 }
@@ -252,6 +252,7 @@ export function HeroShowcase({ slides }: Props) {
 
   const actual = slides[active]
   const progreso = arrastrando ? arrastre : 0
+  const conDescuento = actual.descuento > 0
 
   const transicionSlide =
     animar && !arrastrando
@@ -401,60 +402,55 @@ export function HeroShowcase({ slides }: Props) {
       <div
         aria-live={corriendo ? 'off' : 'polite'}
         aria-atomic="true"
-        className="mx-auto mt-4 w-full max-w-xl border-t border-primary/15 pt-4"
+        className="mx-auto mt-4 w-full max-w-xl border-t border-primary/15 pt-9"
       >
+        {/*
+          Dos columnas con la misma estructura (sm en adelante):
+            fila 1 (grande)  → nombre            | [etiqueta] [precio anterior] precio
+            fila 2 (leyenda) → categoría · marca | precio por transferencia
+          Las dos filas comparten línea base. En celular se apila a la izquierda.
+        */}
         <Link
           key={actual.id}
           href={`/productos/${actual.slug}`}
-          className={`group flex flex-wrap items-end justify-between gap-x-8 gap-y-3 ${
-            animar ? 'hero-bar-in' : ''
-          }`}
+          className={`group grid grid-cols-1 gap-y-1.5 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-baseline sm:gap-x-6 ${animar ? 'hero-bar-in' : ''
+            }`}
         >
-          <div className="flex min-w-0 items-end gap-5">
-            {VER.numero && (
-              <>
-                <span className="font-mono text-4xl font-bold leading-none text-text">
-                  {String(active + 1).padStart(2, '0')}
-                </span>
-                <span aria-hidden className="h-10 w-px bg-primary/20" />
-              </>
-            )}
-            <div className="min-w-0">
-              <p className="font-mono text-xs font-medium uppercase tracking-widest text-primary">
-                {actual.marca ? `${actual.categoria} · ${actual.marca}` : actual.categoria}
-              </p>
-              <div className="mt-1 flex items-center gap-1.5">
-                <p className="truncate font-heading text-xl font-bold uppercase leading-none transition-colors group-hover:text-primary sm:text-2xl">
-                  {actual.nombre}
-                </p>
-                <ArrowUpRight
-                  size={20}
-                  className="shrink-0 text-primary transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
-                />
-              </div>
-            </div>
+          {/* Nombre */}
+          <div className="flex min-w-0 items-center gap-2 sm:col-start-1 sm:row-start-1">
+            <p className="line-clamp-2 font-heading text-xl font-bold uppercase leading-tight transition-colors group-hover:text-primary sm:text-2xl 2xl:text-3xl">
+              {actual.nombre}
+            </p>
+            <ArrowUpRight className="h-5 w-5 shrink-0 text-primary transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 2xl:h-6 2xl:w-6" />
           </div>
 
-          <div className="text-right">
-            <div className="flex items-center justify-end gap-2.5">
-              {VER.badgeDescuento && actual.descuento > 0 && (
-                <span className="badge-discount">-{actual.descuento}%</span>
-              )}
-              <span className="font-sans text-3xl font-bold leading-none text-text">
-                ${actual.precioFinal.toLocaleString('es-AR')}
+          {/* Categoría y marca */}
+          <p className="min-w-0 truncate font-mono text-xs font-medium uppercase tracking-widest text-primary sm:col-start-1 sm:row-start-2 sm:text-sm">
+            {VER.numero && `${String(active + 1).padStart(2, '0')} · `}
+            {actual.marca ? `${actual.categoria} · ${actual.marca}` : actual.categoria}
+          </p>
+
+          {/* Precio (con la etiqueta a la izquierda y el precio anterior a la derecha) */}
+          <div className="mt-2 flex flex-wrap items-baseline gap-x-2.5 gap-y-1 sm:col-start-2 sm:row-start-1 sm:mt-0 sm:flex-nowrap sm:justify-end">
+            {VER.badgeDescuento && conDescuento && (
+              <span className="badge-discount self-center">-{actual.descuento}%</span>
+            )}
+            <span className="font-sans text-2xl font-bold leading-none text-text 2xl:text-3xl">
+              ${actual.precioFinal.toLocaleString('es-AR')}
+            </span>
+            {VER.precioAnterior && conDescuento && (
+              <span className="font-mono text-xs text-muted line-through sm:text-sm">
+                ${actual.precio.toLocaleString('es-AR')}
               </span>
-              {VER.precioAnterior && actual.descuento > 0 && (
-                <span className="font-mono text-sm text-muted line-through">
-                  ${actual.precio.toLocaleString('es-AR')}
-                </span>
-              )}
-            </div>
-            {VER.precioTransferencia && actual.precioTransferencia && (
-              <p className="mt-1.5 font-mono text-base font-normal text-green-600">
-                ${actual.precioTransferencia.toLocaleString('es-AR')} transferencia
-              </p>
             )}
           </div>
+
+          {/* Precio por transferencia */}
+          {VER.precioTransferencia && actual.precioTransferencia && (
+            <p className="font-mono text-sm text-green-600 sm:col-start-2 sm:row-start-2 sm:text-right sm:text-base">
+              ${actual.precioTransferencia.toLocaleString('es-AR')} con transferencia
+            </p>
+          )}
         </Link>
       </div>
 
@@ -483,9 +479,8 @@ export function HeroShowcase({ slides }: Props) {
                 className="p-1.5"
               >
                 <span
-                  className={`block h-2 rounded-full transition-all duration-300 ${
-                    i === active ? 'w-6 bg-primary' : 'w-2 bg-zinc-300 hover:bg-zinc-400'
-                  }`}
+                  className={`block h-2 rounded-full transition-all duration-300 ${i === active ? 'w-6 bg-primary' : 'w-2 bg-zinc-300 hover:bg-zinc-400'
+                    }`}
                 />
               </button>
             ))}

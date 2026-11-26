@@ -96,8 +96,8 @@ export function ProductCard({ producto, descuentoTransferencia = 0 }: Props) {
 
           {/* Precio transferencia */}
           {precioTransferencia && (
-            <p className="font-mono text-sm leading-none text-green-600">
-              ${precioTransferencia.toLocaleString('es-AR')} transferencia
+            <p className="font-mono text-[15px] leading-snug text-green-600">
+              ${precioTransferencia.toLocaleString('es-AR')} con transferencia
             </p>
           )}
         </div>
