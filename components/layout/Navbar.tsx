@@ -4,8 +4,9 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { useEffect, useState } from 'react'
 import { useCartStore } from '@/store/cart'
-import { ShoppingCart, Menu, X } from 'lucide-react'
+import { Menu, X } from 'lucide-react'
 import { FavoritosMenu } from './FavoritosMenu'
+import { PixelCart } from './PixelCart'
 
 const CATEGORIAS = [
   { nombre: 'Teclados', slug: 'teclados' },
@@ -68,7 +69,7 @@ export function Navbar() {
             className="relative p-2 text-muted hover:text-primary transition-colors"
             aria-label="Abrir carrito"
           >
-            <ShoppingCart size={22} strokeWidth={2} />
+            <PixelCart size={22} />
             {cantidad > 0 && (
               <span className="absolute -top-0.5 -right-0.5 bg-primary text-white text-[10px] font-bold w-4.5 h-4.5 rounded-full flex items-center justify-center leading-none">
                 {cantidad}
