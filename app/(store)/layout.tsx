@@ -4,6 +4,7 @@ import { Footer } from '@/components/layout/Footer'
 import { CartDrawer } from '@/components/cart/CartDrawer'
 import { SmoothScroll } from '@/components/layout/SmoothScroll'
 import { LogoLoader } from '@/components/layout/LogoLoader'
+import { FavoritosSync } from '@/components/layout/FavoritosSync'
 
 export default function StoreLayout({
   children,
@@ -12,6 +13,7 @@ export default function StoreLayout({
 }) {
   return (
     <>
+      <FavoritosSync />
       <LogoLoader />
       <SmoothScroll />
       <AnnouncementBar />

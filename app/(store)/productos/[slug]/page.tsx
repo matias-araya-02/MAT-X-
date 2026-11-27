@@ -6,6 +6,7 @@ import { Gallery } from '@/components/product/Gallery'
 import { ProductCard } from '@/components/product/ProductCard'
 import { calcularPrecioFinal } from '@/lib/pricing'
 import { AddToCartButton } from '@/components/product/AddToCartButton'
+import { FavoritoButton } from '@/components/product/FavoritoButton'
 import { Truck, CreditCard, ChevronRight } from 'lucide-react'
 
 interface Props {
@@ -83,9 +84,9 @@ export default async function ProductoDetallePage({ params }: Props) {
   // Link del breadcrumb: categoría + marca (se codifica solo)
   const marcaHref = producto.marca
     ? `/productos?${new URLSearchParams({
-        categoria: producto.categoria.slug,
-        marca: producto.marca.slug,
-      }).toString()}`
+      categoria: producto.categoria.slug,
+      marca: producto.marca.slug,
+    }).toString()}`
     : null
 
   return (
@@ -153,9 +154,15 @@ export default async function ProductoDetallePage({ params }: Props) {
               )}
             </div>
             {precioTransferencia && (
-              <p className="font-mono text-sm text-green-600 mt-1">
-                ${precioTransferencia.toLocaleString('es-AR')} con transferencia
-              </p>
+              <div className="flex items-center gap-2 mt-2 leading-none">
+                <span className="font-mono text-sm font-bold text-[#5B21B6]">↳</span>
+                <span className="font-sans text-xl font-bold text-[#5B21B6]">
+                  ${precioTransferencia.toLocaleString('es-AR')}
+                </span>
+                <span className="font-mono text-xs text-muted">
+                  con transferencia
+                </span>
+              </div>
             )}
           </div>
 
@@ -173,6 +180,8 @@ export default async function ProductoDetallePage({ params }: Props) {
 
           {/* Selector variante + botón carrito */}
           <AddToCartButton producto={producto} />
+
+          <FavoritoButton productoId={producto.id} variante="detalle" />
 
           {/* Info envío */}
           <div className="border border-primary/20 p-4 space-y-2">

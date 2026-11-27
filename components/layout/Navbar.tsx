@@ -5,6 +5,7 @@ import Image from 'next/image'
 import { useEffect, useState } from 'react'
 import { useCartStore } from '@/store/cart'
 import { ShoppingCart, Menu, X } from 'lucide-react'
+import { FavoritosMenu } from './FavoritosMenu'
 
 const CATEGORIAS = [
   { nombre: 'Teclados', slug: 'teclados' },
@@ -59,6 +60,8 @@ export function Navbar() {
 
         {/* Acciones */}
         <div className="flex items-center gap-2">
+          <FavoritosMenu />
+
           {/* Carrito */}
           <button
             onClick={openCart}

@@ -58,20 +58,19 @@
     @apply bg-surface border border-primary/20 hover:border-primary/60 transition-all duration-200 overflow-hidden;
   }
 
-  /* Botón carrito en tarjeta: botón violeta liso + "placa" blanca con contorno violeta detrás */
+  /* Botón carrito en tarjeta: violeta liso + "placa" con contorno fino centrada detrás */
   .btn-cart,
   .btn-neo {
     --cart-bg: #7c3aed;
     --cart-bg-hover: #6d28d9;
-    --cart-ink: #7c3aed;
-    /* color del contorno de la placa */
-    --o: 5px;
-    /* cuánto asoma la placa (reposo) */
+    --cart-ink: #7c3aed; /* contorno de la placa */
+    --o: 5px;            /* cuánto asoma la placa */
 
     @apply relative flex w-full cursor-pointer items-center justify-center px-4 py-2.5 text-center font-heading text-xs font-bold uppercase tracking-wider text-white;
     background-color: var(--cart-bg);
     border: 0;
-    /* 1º (arriba): relleno blanco, 1px más chico  |  2º (abajo): violeta = el contorno */
+    /* En reposo el botón va arriba/izquierda; la placa (sombra) queda en el lugar centrado */
+    transform: translate(calc(var(--o) * -1), calc(var(--o) * -1));
     box-shadow:
       var(--o) var(--o) 0 -1px #fff,
       var(--o) var(--o) 0 0 var(--cart-ink);
@@ -86,13 +85,13 @@
     inset: -6px;
   }
 
-  /* Hover: el botón se desplaza exactamente sobre la sombra y la cubre por completo sin que se vea el borde */
+  /* Hover: el botón vuelve a su lugar centrado y tapa la placa por completo */
   .btn-cart:hover:not(:disabled),
   .btn-neo:hover:not(:disabled),
   .btn-cart:active:not(:disabled),
   .btn-neo:active:not(:disabled) {
     background-color: var(--cart-bg-hover);
-    transform: translate(var(--o), var(--o));
+    transform: translate(0, 0);
     box-shadow: none;
   }
 
@@ -125,4 +124,21 @@
 
 .animate-marquee {
   animation: marquee 25s linear infinite;
+}
+
+/* Latido del corazón al marcar un favorito */
+@keyframes heart-pop {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.35); }
+  100% { transform: scale(1); }
+}
+
+.animate-heart-pop {
+  animation: heart-pop 0.3s ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-heart-pop {
+    animation: none;
+  }
 }

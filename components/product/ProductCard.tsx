@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { calcularPrecioFinal } from '@/lib/pricing'
 import type { Producto, Categoria, Marca, Imagen, Variante } from '@prisma/client'
 import { CardAddToCartButton } from './CardAddToCartButton'
+import { FavoritoButton } from './FavoritoButton'
 
 type ProductoCard = Producto & {
   categoria: Pick<Categoria, 'nombre' | 'slug'>
@@ -33,7 +34,7 @@ export function ProductCard({ producto, descuentoTransferencia = 0 }: Props) {
   const sinStock = stockTotal === 0
 
   return (
-    <div className="product-card group flex h-full w-full flex-col bg-white">
+    <div className="product-card group relative flex h-full w-full flex-col bg-white">
       <Link
         href={`/productos/${producto.slug}`}
         className="flex flex-none flex-col"
@@ -62,7 +63,7 @@ export function ProductCard({ producto, descuentoTransferencia = 0 }: Props) {
             </span>
           )}
           {sinStock && (
-            <span className="absolute right-2 top-2 bg-zinc-800/80 text-white font-mono text-xs px-2 py-0.5">
+            <span className="absolute bottom-2 left-2 bg-zinc-800/80 text-white font-mono text-xs px-2 py-0.5">
               Sin stock
             </span>
           )}
@@ -103,8 +104,13 @@ export function ProductCard({ producto, descuentoTransferencia = 0 }: Props) {
         </div>
       </Link>
 
+      {/* Favorito: fuera del Link para que no navegue. top-8 = debajo de la etiqueta (24px) + 8px */}
+      <div className="absolute right-2 top-8 z-10">
+        <FavoritoButton productoId={producto.id} nombre={producto.nombre} />
+      </div>
+
       {/* Botón: mismo gap que el resto (pt-3), pegado abajo */}
-      <div className="mt-auto shrink-0 px-4 pb-4 pt-3">
+      <div className="mt-auto shrink-0 px-4 pb-4 pt-[17px]">
         {producto.variantes.length > 0 && !sinStock ? (
           <Link href={`/productos/${producto.slug}`} className="btn-cart">
             Elegir opciones
