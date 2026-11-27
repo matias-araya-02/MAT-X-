@@ -47,3 +47,17 @@ export function generarMensajeWhatsApp({ pedido, config }: WhatsAppOptions): str
 
   return `https://wa.me/${numero}?text=${encodeURIComponent(mensaje)}`
 }
+
+/**
+ * Link wa.me para pedir que avisen cuando llegue un producto de "Próximamente".
+ * Devuelve null si no está configurado NEXT_PUBLIC_WHATSAPP_NUMBER.
+ */
+export function generarLinkAvisoWhatsApp(nombre: string, marca?: string | null): string | null {
+  const numero = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER
+  if (!numero) return null
+
+  const producto = marca ? `${marca} ${nombre}` : nombre
+  const mensaje = `Hola! Quiero que me avisen cuando llegue: ${producto}. Gracias!`
+
+  return `https://wa.me/${numero}?text=${encodeURIComponent(mensaje)}`
+}

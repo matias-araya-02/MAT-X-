@@ -6,6 +6,9 @@ import { CategoryGrid } from '@/components/home/CategoryGrid'
 import { BrandsCarousel } from '@/components/home/BrandsCarousel'
 import { FeaturedBanners } from '@/components/home/FeaturedBanners'
 import { ParallaxBanner } from '@/components/home/ParallaxBanner'
+import { Proximamente } from '@/components/home/Proximamente'
+import type { ProximoData } from '@/components/home/ProximoCard'
+import type { ProximamenteTeaserData } from '@/components/home/ProximamenteTeaser'
 import { ProductCard } from '@/components/product/ProductCard'
 import { ProductCarousel } from '@/components/product/ProductCarousel'
 import { calcularPrecioFinal } from '@/lib/pricing'
@@ -118,6 +121,51 @@ async function getHeroSlides() {
   })
 }
 
+// Sección "Próximamente": productos que todavía no llegaron + card con video o imagen
+async function getProximamente() {
+  const [config, items] = await Promise.all([
+    prisma.proximamenteConfig.findUnique({ where: { id: 1 } }),
+    prisma.proximoIngreso.findMany({
+      where: { activo: true },
+      orderBy: { orden: 'asc' },
+      select: {
+        id: true,
+        nombre: true,
+        llegada: true,
+        precioEstimado: true,
+        imagenUrl: true,
+        categoria: { select: { nombre: true } },
+        marca: { select: { nombre: true } },
+      },
+    }),
+  ])
+
+  const proximos: ProximoData[] = items.map((it) => ({
+    id: it.id,
+    nombre: it.nombre,
+    categoria: it.categoria?.nombre ?? null,
+    marca: it.marca?.nombre ?? null,
+    llegada: it.llegada,
+    precioEstimado: it.precioEstimado,
+    imagenUrl: it.imagenUrl,
+  }))
+
+  // La card fija se muestra si está activa y tiene video o imagen
+  const teaser: ProximamenteTeaserData | null =
+    config && config.activo && (config.videoUrl || config.imagenUrl)
+      ? {
+          videoUrl: config.videoUrl,
+          imagenUrl: config.imagenUrl,
+          titulo: config.titulo,
+          subtitulo: config.subtitulo,
+          enlaceUrl: config.enlaceUrl,
+          enlaceTexto: config.enlaceTexto,
+        }
+      : null
+
+  return { proximos, teaser }
+}
+
 export default async function HomePage() {
   const [
     destacados,
@@ -127,6 +175,7 @@ export default async function HomePage() {
     categorias,
     bannerParallax,
     heroSlidesRaw,
+    proximamente,
   ] = await Promise.all([
     getDestacados(),
     getConfig(),
@@ -135,6 +184,7 @@ export default async function HomePage() {
     getCategorias(),
     getBannerParallax(),
     getHeroSlides(),
+    getProximamente(),
   ])
 
   // Datos listos para el hero (precios calculados en el servidor)
@@ -195,6 +245,8 @@ export default async function HomePage() {
       <FeaturedBanners items={bannersHome} />
 
       <CategoryGrid categorias={categorias} />
+
+      <Proximamente items={proximamente.proximos} teaser={proximamente.teaser} />
 
       <ParallaxBanner banner={bannerParallax} />
 

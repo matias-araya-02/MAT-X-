@@ -4,6 +4,16 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/route'
 import { cloudinary } from '@/lib/cloudinary'
 import { prisma } from '@/lib/prisma'
 
+// Carpetas de Cloudinary permitidas (cualquier otro valor cae en productos)
+const CARPETAS: Record<string, string> = {
+  marcas: 'mat-x/marcas',
+  destacados: 'mat-x/destacados',
+  categorias: 'mat-x/categorias',
+  banner: 'mat-x/banner',
+  hero: 'mat-x/hero',
+  proximamente: 'mat-x/proximamente',
+}
+
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions)
   if (!session) return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
@@ -16,17 +26,9 @@ export async function POST(req: NextRequest) {
 
     // Carpeta de destino en Cloudinary (solo valores permitidos)
     const folder =
-      folderParam === 'marcas'
-        ? 'mat-x/marcas'
-        : folderParam === 'destacados'
-          ? 'mat-x/destacados'
-          : folderParam === 'categorias'
-            ? 'mat-x/categorias'
-            : folderParam === 'banner'
-              ? 'mat-x/banner'
-              : folderParam === 'hero'
-                ? 'mat-x/hero'
-                : 'mat-x/productos'
+      folderParam && Object.prototype.hasOwnProperty.call(CARPETAS, folderParam)
+        ? CARPETAS[folderParam]
+        : 'mat-x/productos'
 
     if (!file) {
       return NextResponse.json({ error: 'No se envió ningún archivo' }, { status: 400 })
@@ -94,11 +96,13 @@ export async function DELETE(req: NextRequest) {
   if (!session) return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
 
   try {
-    const { imagenId, publicId } = await req.json()
+    const { imagenId, publicId, resourceType } = await req.json()
 
     // Eliminar de Cloudinary
     if (publicId) {
-      await cloudinary.uploader.destroy(publicId)
+      await cloudinary.uploader.destroy(publicId, {
+        resource_type: resourceType === 'video' ? 'video' : 'image',
+      })
     }
 
     // Eliminar de DB

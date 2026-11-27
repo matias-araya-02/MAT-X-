@@ -9,26 +9,28 @@ datasource db {
 }
 
 model Categoria {
-  id             String     @id @default(cuid())
-  nombre         String
-  slug           String     @unique
-  descripcion    String?
-  imagenUrl      String?
-  imagenPublicId String?
-  imagenEscala   Int        @default(70)
-  orden          Int        @default(0)
-  productos      Producto[]
+  id               String           @id @default(cuid())
+  nombre           String
+  slug             String           @unique
+  descripcion      String?
+  imagenUrl        String?
+  imagenPublicId   String?
+  imagenEscala     Int              @default(70)
+  orden            Int              @default(0)
+  productos        Producto[]
+  proximosIngresos ProximoIngreso[]
 }
 
 model Marca {
-  id           String     @id @default(cuid())
-  nombre       String     @unique
-  slug         String     @unique
-  logoUrl      String?
-  logoPublicId String?
-  logoEscala   Int        @default(80)
-  createdAt    DateTime   @default(now())
-  productos    Producto[]
+  id               String           @id @default(cuid())
+  nombre           String           @unique
+  slug             String           @unique
+  logoUrl          String?
+  logoPublicId     String?
+  logoEscala       Int              @default(80)
+  createdAt        DateTime         @default(now())
+  productos        Producto[]
+  proximosIngresos ProximoIngreso[]
 }
 
 model Producto {
@@ -144,6 +146,40 @@ model HeroSlide {
   createdAt      DateTime @default(now())
 
   @@index([productoId])
+  @@index([orden])
+}
+
+// Card fija de la sección "Próximamente" (video o imagen). Una sola fila.
+model ProximamenteConfig {
+  id             Int     @id @default(1)
+  activo         Boolean @default(false)
+  titulo         String?
+  subtitulo      String?
+  videoUrl       String? // URL https de un MP4 (por ejemplo, alojado en Cloudinary)
+  imagenUrl      String? // portada del video o imagen ilustrativa
+  imagenPublicId String?
+  enlaceTexto    String?
+  enlaceUrl      String?
+}
+
+// Productos que todavía no llegaron. Independientes del catálogo: no tienen stock ni carrito.
+model ProximoIngreso {
+  id             String     @id @default(cuid())
+  orden          Int        @default(0)
+  activo         Boolean    @default(true)
+  nombre         String
+  categoria      Categoria? @relation(fields: [categoriaId], references: [id], onDelete: SetNull)
+  categoriaId    String?
+  marca          Marca?     @relation(fields: [marcaId], references: [id], onDelete: SetNull)
+  marcaId        String?
+  llegada        String? // texto libre: "Diciembre", "Fines de enero"...
+  precioEstimado Int?
+  imagenUrl      String
+  imagenPublicId String
+  createdAt      DateTime   @default(now())
+
+  @@index([categoriaId])
+  @@index([marcaId])
   @@index([orden])
 }
 

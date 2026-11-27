@@ -8,12 +8,17 @@ interface Props {
     children: ReactNode
     /** Nombre accesible de la región desplazable */
     label?: string
+    /**
+     * Card fija a la izquierda (en pantallas grandes), del mismo ancho que una card.
+     * Con esto se ven 3 cards de producto a su lado en vez de 4.
+     */
+    lead?: ReactNode
 }
 
 // Separación entre cards en px (igual a gap-4)
 const GAP = 16
 
-export function ProductCarousel({ children, label = 'Productos' }: Props) {
+export function ProductCarousel({ children, label = 'Productos', lead }: Props) {
     const scrollerRef = useRef<HTMLDivElement>(null)
     const trackRef = useRef<HTMLDivElement>(null)
     const drag = useRef<{ startX: number; startScroll: number } | null>(null)
@@ -171,30 +176,49 @@ export function ProductCarousel({ children, label = 'Productos' }: Props) {
         setDragging(false)
     }
 
+    // Cards por pantalla: sin card fija 2 / 3 / 4; con card fija 2 / 3 / 3 (la fija ocupa la cuarta)
+    const anchoCard = lead
+        ? 'basis-[calc((100%_-_16px)/2)] md:basis-[calc((100%_-_32px)/3)]'
+        : 'basis-[calc((100%_-_16px)/2)] md:basis-[calc((100%_-_32px)/3)] lg:basis-[calc((100%_-_48px)/4)]'
+
     return (
         <div>
-            {/* Carril de cards */}
-            <div
-                ref={scrollerRef}
-                onScroll={update}
-                onWheel={cancelarAnimacion}
-                onTouchStart={cancelarAnimacion}
-                tabIndex={0}
-                role="region"
-                aria-label={label}
-                className={`flex gap-4 overflow-x-auto focus:outline-none focus-visible:ring-1 focus-visible:ring-primary [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${dragging || animating ? '' : 'snap-x snap-mandatory'
-                    }`}
-            >
-                {Children.map(children, (child) => (
-                    <div className="min-w-0 flex-none basis-[calc((100%_-_16px)/2)] snap-start md:basis-[calc((100%_-_32px)/3)] lg:basis-[calc((100%_-_48px)/4)] flex">
-                        {child}
+            <div className={lead ? 'lg:flex lg:gap-4' : undefined}>
+                {/* Card fija (arriba en pantallas chicas, a la izquierda en grandes) */}
+                {lead && (
+                    <div className="mb-4 flex flex-col lg:mb-0 lg:w-[calc((100%_-_48px)/4)] lg:flex-none">
+                        {lead}
                     </div>
-                ))}
+                )}
+
+                <div className={lead ? 'min-w-0 lg:flex-1' : undefined}>
+                    {/* Carril de cards */}
+                    <div
+                        ref={scrollerRef}
+                        onScroll={update}
+                        onWheel={cancelarAnimacion}
+                        onTouchStart={cancelarAnimacion}
+                        tabIndex={0}
+                        role="region"
+                        aria-label={label}
+                        className={`flex gap-4 overflow-x-auto focus:outline-none focus-visible:ring-1 focus-visible:ring-primary [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${dragging || animating ? '' : 'snap-x snap-mandatory'
+                            }`}
+                    >
+                        {Children.map(children, (child) => (
+                            <div className={`min-w-0 flex-none snap-start flex ${anchoCard}`}>
+                                {child}
+                            </div>
+                        ))}
+                    </div>
+                </div>
             </div>
 
             {/* Barra + flechas (solo si hay más cards de las que entran) */}
             {s.overflow && (
-                <div className="mt-6 flex items-center gap-4">
+                <div
+                    className={`mt-6 flex items-center gap-4 ${lead ? 'lg:pl-[calc((100%_-_48px)/4_+_16px)]' : ''
+                        }`}
+                >
                     <div
                         ref={trackRef}
                         onPointerDown={onTrackDown}

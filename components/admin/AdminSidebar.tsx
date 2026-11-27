@@ -13,6 +13,7 @@ import {
   PanelTop,
   Star,
   Sparkles,
+  Clock,
   Settings,
   LogOut,
 } from 'lucide-react'
@@ -26,6 +27,7 @@ const NAV_LINKS = [
   { href: '/admin/hero', label: 'Hero', icon: PanelTop, exact: false },
   { href: '/admin/destacados', label: 'Destacados', icon: Star, exact: false },
   { href: '/admin/banner', label: 'Banner', icon: Sparkles, exact: false },
+  { href: '/admin/proximamente', label: 'Próximamente', icon: Clock, exact: false },
   { href: '/admin/config', label: 'Configuración', icon: Settings, exact: false },
 ]
 
@@ -56,10 +58,11 @@ export function AdminSidebar() {
             <Link
               key={link.href}
               href={link.href}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg font-mono text-sm transition-colors ${active
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg font-mono text-sm transition-colors ${
+                active
                   ? 'bg-primary text-white'
                   : 'text-muted hover:text-text hover:bg-background'
-                }`}
+              }`}
             >
               <Icon size={18} strokeWidth={active ? 2.5 : 2} />
               {link.label}
