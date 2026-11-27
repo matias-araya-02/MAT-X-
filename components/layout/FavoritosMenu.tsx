@@ -12,7 +12,7 @@ import { PixelHeart } from '@/components/product/PixelHeart'
 function Contador({ n }: { n: number }) {
   if (n === 0) return null
   return (
-    <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-[1rem] items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold leading-none text-white">
+    <span className="absolute -right-0.5 -top-0.5 grid h-4 min-w-[1rem] place-items-center rounded-full bg-primary px-1 font-sans text-[10px] font-bold leading-none tabular-nums text-white">
       {n}
     </span>
   )
@@ -69,7 +69,7 @@ export function FavoritosMenu() {
         aria-label={label}
         className="relative flex p-2 text-muted transition-colors hover:text-primary md:hidden"
       >
-        <PixelHeart size={22} filled={cantidad > 0} className={cantidad > 0 ? 'text-primary' : ''} />
+        <PixelHeart size={22} />
         <Contador n={cantidad} />
       </Link>
 
@@ -82,7 +82,7 @@ export function FavoritosMenu() {
         aria-haspopup="true"
         className="relative hidden p-2 text-muted transition-colors hover:text-primary md:flex"
       >
-        <PixelHeart size={22} filled={cantidad > 0} className={cantidad > 0 ? 'text-primary' : ''} />
+        <PixelHeart size={22} />
         <Contador n={cantidad} />
       </button>
 
@@ -136,11 +136,16 @@ export function FavoritosMenu() {
                           />
                         )}
                       </div>
-                      <div className="min-w-0">
-                        <p className="line-clamp-2 font-heading text-sm font-bold leading-tight">
+                      <div className="flex min-w-0 flex-col gap-1.5">
+                        {p.marca && (
+                          <p className="font-mono text-[11px] font-bold uppercase leading-none tracking-wider text-primary">
+                            {p.marca.nombre}
+                          </p>
+                        )}
+                        <p className="line-clamp-2 font-heading text-sm font-bold leading-none">
                           {p.nombre}
                         </p>
-                        <p className="mt-1 font-sans text-sm font-bold text-text">
+                        <p className="font-sans text-sm font-bold leading-none text-text">
                           ${calcularPrecioFinal(p.precio, p.descuento).toLocaleString('es-AR')}
                         </p>
                       </div>

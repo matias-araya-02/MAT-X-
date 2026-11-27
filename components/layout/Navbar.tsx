@@ -24,7 +24,7 @@ export function Navbar() {
 
   return (
     <header className="bg-background sticky top-0 z-30">
-      <nav className="container mx-auto px-4 h-16 flex items-center justify-between">
+      <nav className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between px-4">
         {/* Logo */}
         <Link href="/" className="flex items-center">
           <Image
@@ -66,12 +66,12 @@ export function Navbar() {
           {/* Carrito */}
           <button
             onClick={openCart}
-            className="relative p-2 text-muted hover:text-primary transition-colors"
+            className="relative flex items-center justify-center p-2 text-muted transition-colors hover:text-primary"
             aria-label="Abrir carrito"
           >
             <PixelCart size={22} />
             {cantidad > 0 && (
-              <span className="absolute -top-0.5 -right-0.5 bg-primary text-white text-[10px] font-bold w-4.5 h-4.5 rounded-full flex items-center justify-center leading-none">
+              <span className="absolute -right-0.5 -top-0.5 grid h-4 min-w-[1rem] place-items-center rounded-full bg-primary px-1 font-sans text-[10px] font-bold leading-none tabular-nums text-white">
                 {cantidad}
               </span>
             )}
@@ -91,7 +91,7 @@ export function Navbar() {
       {/* Menú mobile */}
       {menuOpen && (
         <div className="md:hidden border-t border-primary/10 bg-background">
-          <ul className="container mx-auto px-4 py-4 space-y-1">
+          <ul className="mx-auto w-full max-w-7xl space-y-1 px-4 py-4">
             {CATEGORIAS.map((cat) => (
               <li key={cat.slug}>
                 <Link

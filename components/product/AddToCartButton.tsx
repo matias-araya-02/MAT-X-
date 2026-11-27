@@ -22,6 +22,7 @@ export function AddToCartButton({ producto }: Props) {
     producto.variantes.length === 1 ? producto.variantes[0] : null
   )
   const [cantidad, setCantidad] = useState(1)
+  const [limite, setLimite] = useState(false)
 
   const tieneVariantes = producto.variantes.length > 0
   const imagen = producto.imagenes[0]?.url
@@ -29,8 +30,8 @@ export function AddToCartButton({ producto }: Props) {
   const stockDisponible = varianteSeleccionada
     ? varianteSeleccionada.stock
     : tieneVariantes
-    ? 0
-    : producto.stock
+      ? 0
+      : producto.stock
 
   const precioBase = varianteSeleccionada?.precio ?? producto.precio
   const precioFinal = calcularPrecioFinal(precioBase, producto.descuento)
@@ -41,12 +42,26 @@ export function AddToCartButton({ producto }: Props) {
   function handleAgregar() {
     if (!puedeAgregar) return
 
+    const varianteId = varianteSeleccionada?.id
+    const enCarrito =
+      useCartStore
+        .getState()
+        .items.find((i) => i.productoId === producto.id && i.varianteId === varianteId)?.cantidad ?? 0
+
+    if (enCarrito >= stockDisponible) {
+      setLimite(true)
+      setTimeout(() => setLimite(false), 1500)
+      return
+    }
+
     addItem({
       productoId: producto.id,
-      varianteId: varianteSeleccionada?.id,
+      varianteId,
       nombre: producto.nombre,
       variante: varianteSeleccionada?.nombre,
       precio: precioFinal,
+      cantidad: Math.min(cantidad, stockDisponible - enCarrito),
+      stock: stockDisponible,
       imagen,
     })
     openCart()
@@ -64,13 +79,15 @@ export function AddToCartButton({ producto }: Props) {
             {producto.variantes.map((v) => (
               <button
                 key={v.id}
-                onClick={() => setVarianteSeleccionada(v)}
+                onClick={() => {
+                  setVarianteSeleccionada(v)
+                  setCantidad((c) => Math.max(1, Math.min(c, v.stock)))
+                }}
                 disabled={v.stock === 0}
-                className={`px-4 py-2 font-sans text-sm font-medium border transition-colors disabled:opacity-40 disabled:cursor-not-allowed ${
-                  varianteSeleccionada?.id === v.id
-                    ? 'bg-primary text-white border-primary'
-                    : 'border-primary/40 text-text hover:border-primary'
-                }`}
+                className={`px-4 py-2 font-sans text-sm font-medium border transition-colors disabled:opacity-40 disabled:cursor-not-allowed ${varianteSeleccionada?.id === v.id
+                  ? 'bg-primary text-white border-primary'
+                  : 'border-primary/40 text-text hover:border-primary'
+                  }`}
               >
                 {v.nombre}
                 {v.stock === 0 && ' (sin stock)'}
@@ -114,6 +131,8 @@ export function AddToCartButton({ producto }: Props) {
           ? tieneVariantes && !varianteSeleccionada
             ? 'Seleccioná una variante'
             : 'Sin stock'
+          : limite
+          ? 'Stock máximo'
           : 'Agregar al carrito'}
       </button>
 

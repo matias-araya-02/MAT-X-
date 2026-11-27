@@ -8,6 +8,7 @@ export interface CartItem {
   variante?: string
   precio: number      // precio calculado con descuento (referencia visual; el servidor recalcula)
   cantidad: number
+  stock?: number      // stock disponible al agregar; limita el incremento en el carrito
   imagen?: string
 }
 
@@ -28,6 +29,11 @@ interface CartState {
   totalPrice: () => number
 }
 
+function limitarPorStock(cantidad: number, stock?: number) {
+  if (stock === undefined) return cantidad
+  return Math.max(0, Math.min(cantidad, stock))
+}
+
 export const useCartStore = create<CartState>()(
   persist(
     (set, get) => ({
@@ -36,23 +42,29 @@ export const useCartStore = create<CartState>()(
 
       addItem: (newItem) => {
         set((state) => {
+          const cantidadSumar = newItem.cantidad ?? 1
           const existing = state.items.find(
             (i) =>
               i.productoId === newItem.productoId &&
               i.varianteId === newItem.varianteId
           )
           if (existing) {
+            const stock = newItem.stock ?? existing.stock
+            const nuevaCantidad = limitarPorStock(existing.cantidad + cantidadSumar, stock)
+            if (nuevaCantidad <= 0) return state
             return {
               items: state.items.map((i) =>
                 i.productoId === newItem.productoId &&
                 i.varianteId === newItem.varianteId
-                  ? { ...i, cantidad: i.cantidad + (newItem.cantidad ?? 1) }
+                  ? { ...i, stock, cantidad: nuevaCantidad }
                   : i
               ),
             }
           }
+          const inicial = limitarPorStock(cantidadSumar, newItem.stock)
+          if (inicial <= 0) return state
           return {
-            items: [...state.items, { ...newItem, cantidad: newItem.cantidad ?? 1 }],
+            items: [...state.items, { ...newItem, cantidad: inicial }],
           }
         })
       },
@@ -72,11 +84,11 @@ export const useCartStore = create<CartState>()(
           return
         }
         set((state) => ({
-          items: state.items.map((i) =>
-            i.productoId === productoId && i.varianteId === varianteId
-              ? { ...i, cantidad }
-              : i
-          ),
+          items: state.items.map((i) => {
+            if (i.productoId !== productoId || i.varianteId !== varianteId) return i
+            const limitada = limitarPorStock(cantidad, i.stock)
+            return { ...i, cantidad: Math.max(1, limitada) }
+          }),
         }))
       },
 

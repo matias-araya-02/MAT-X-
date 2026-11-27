@@ -11,6 +11,7 @@ interface Props {
 
 export function CartItem({ item }: Props) {
   const { updateQuantity, removeItem } = useCartStore()
+  const alcanzoMaximo = item.stock !== undefined && item.cantidad >= item.stock
 
   return (
     <div className="flex gap-3 items-start">
@@ -48,7 +49,9 @@ export function CartItem({ item }: Props) {
           <span className="font-mono text-sm w-6 text-center">{item.cantidad}</span>
           <button
             onClick={() => updateQuantity(item.productoId, item.varianteId, item.cantidad + 1)}
-            className="w-6 h-6 bg-background border border-primary/40 hover:border-primary rounded flex items-center justify-center transition-colors"
+            disabled={alcanzoMaximo}
+            aria-label="Sumar cantidad"
+            className="w-6 h-6 bg-background border border-primary/40 hover:border-primary rounded flex items-center justify-center transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           >
             <Plus size={12} strokeWidth={2.5} />
           </button>

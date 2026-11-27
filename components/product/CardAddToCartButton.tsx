@@ -32,7 +32,7 @@ export function CardAddToCartButton({ productoId, nombre, precio, imagen, stock 
       return
     }
 
-    addItem({ productoId, nombre, precio, imagen })
+    addItem({ productoId, nombre, precio, imagen, stock })
     openCart()
   }
 
